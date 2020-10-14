@@ -10,7 +10,7 @@ metadata {
   definition (
     name: "DSC Zone CO",
     author: "Ralph Torchia",
-    namespace: 'dsc',
+    namespace: 'rtorchia',
     mnmn: "SmartThingsCommunity",
     vid: "2a0f3baf-bfab-3730-8992-dbb876eb0dc2"
   )

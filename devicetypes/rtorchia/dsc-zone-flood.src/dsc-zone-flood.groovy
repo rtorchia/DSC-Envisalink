@@ -10,7 +10,7 @@ metadata {
   definition (
   	name: "DSC Zone Flood",
     author: "Ralph Torchia",
-    namespace: 'dsc',
+    namespace: 'rtorchia',
     mnmn: "SmartThingsCommunity",
     vid: "b3fd0fa8-6128-3bb9-b166-50104302ecf9"
   )
