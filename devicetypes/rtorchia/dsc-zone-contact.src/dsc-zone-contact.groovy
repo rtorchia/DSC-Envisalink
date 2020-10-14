@@ -3,7 +3,7 @@
  *
  *  Author: Ralph Torchia
  *  Originally By: Jordan <jordan@xeron.cc>, Matt Martz <matt.martz@gmail.com>, Kent Holloway <drizit@gmail.com>
- *  Date: 2020-10-07
+ *  Date: 2020-10-14
  */
 
 metadata {
@@ -14,58 +14,22 @@ metadata {
     mnmn: "SmartThingsCommunity",
     vid: "4cf13940-90d0-34ed-95f9-67f7bc92c03c"
   )
+
   {
     capability "Contact Sensor"
     capability "Sensor"
     capability "Alarm"
     capability "pizzafiber16443.zoneBypass"
     capability "pizzafiber16443.troubleStatus"
-    //capability "Momentary"
-    
-    attribute "bypass", "string"
-    attribute "trouble", "string"
-
-    command "zone"
-    command "bypass"
-    command "setZoneBypass"
   }
-  
-  //for old app
-  tiles(scale: 2) {
-    multiAttributeTile(name:"zone", type: "generic", width: 6, height: 4) {
-      tileAttribute ("device.contact", key: "PRIMARY_CONTROL") {
-        attributeState "open", label: '${name}', icon: "st.contact.contact.open", backgroundColor: "#ffa81e"
-        attributeState "closed", label: '${name}', icon: "st.contact.contact.closed", backgroundColor: "#79b821"
-        attributeState "alarm", label: 'ALARM', icon: "st.contact.contact.open", backgroundColor: "#ff0000"
-      }
-      tileAttribute ("device.trouble", key: "SECONDARY_CONTROL") {
-        attributeState "restore", label: 'No Trouble', icon: "st.security.alarm.clear"
-        attributeState "tamper", label: 'Tamper', icon: "st.security.alarm.alarm"
-        attributeState "fault", label: 'Fault', icon: "st.security.alarm.alarm"
-      }
-    }
-    standardTile("bypass", "device.bypass", width: 3, height: 2, title: "Bypass Status", decoration:"flat"){
-      state "off", label: 'Enabled', action: "bypass", icon: "st.security.alarm.on"
-      state "on", label: 'Bypassed', action: "bypass", icon: "st.security.alarm.off"
-    }
-    standardTile("alarm", "device.alarm", width: 3, height: 2, title: "Alarm Status", decoration: "flat"){
-      state "off", label: 'No Alarm', icon: "st.security.alarm.off"
-      state "both", label: 'ALARM', icon: "st.security.alarm.on"
-    }
 
-    main "zone"
-
-    details(["zone", "bypass", "alarm"])
-  }
+  tiles {}  
 }
 
 // handle commands
-def bypass() {
+def setZoneBypass() {
   def zone = device.deviceNetworkId.minus('dsczone')
   parent.sendUrl("bypass?zone=${zone}")
-}
-def setZoneBypass() {
-  bypass()
   sendEvent (name: "zoneBypass", value: "on")
 }
 
@@ -80,7 +44,9 @@ def zone(String state) {
     'tamper': 'Tamper',
     'fault': 'Fault'
   ]
+
   def bypassList = ['on','off']
+
   def alarmMap = [
     'alarm': "both",
     'noalarm': "off"
@@ -127,9 +93,9 @@ def strobe() {
 }
 
 private initialize() {
-	log.trace "Executing initialize()"
-    //set default values
-    sendEvent (name: "troubleStatus", value: "No Trouble")
-    sendEvent (name: "zoneBypass", value: "off")
-	off()
+  log.trace "Executing initialize()"
+  //set default values
+  sendEvent (name: "troubleStatus", value: "No Trouble")
+  sendEvent (name: "zoneBypass", value: "off")
+  off()
 }
