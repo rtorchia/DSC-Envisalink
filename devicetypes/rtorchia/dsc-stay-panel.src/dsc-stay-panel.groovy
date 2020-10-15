@@ -103,7 +103,7 @@ def armAway(evt) {
 }
 def disarm() {
   log.debug "triggered disarm()"
-	sendEvent(name: "switch", value: "off")
+  sendEvent(name: "switch", value: "off")
   sendEvent(name: "securitySystemStatus", value: "disarmed")
   parent.sendUrl("disarm?part=${device.deviceNetworkId[-1]}")
 }
@@ -119,10 +119,6 @@ def autobypass() {
 
 def bypassoff() {
   parent.sendUrl("bypass?zone=0&part=${device.deviceNetworkId[-1]}")
-}
-
-def disarm() {
-  parent.sendUrl("disarm?part=${device.deviceNetworkId[-1]}")
 }
 
 def instant() {
