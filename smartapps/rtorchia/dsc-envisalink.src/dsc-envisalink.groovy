@@ -14,9 +14,9 @@ definition(
   author: 'Ralph Torchia',
   description: 'DSC-Envisalink Integration SmartApp',
   category: 'My Apps',
-  iconUrl: 'https://github.com/rtorchia/DSC-Envisalink/blob/main/images/logo_IconX1.png?raw=true',
-  iconX2Url: 'https://github.com/rtorchia/DSC-Envisalink/blob/main/images/logo_IconX2.png?raw=true',
-  iconX3Url: 'https://github.com/rtorchia/DSC-Envisalink/blob/main/images/logo_IconX3.png?raw=true',
+  iconUrl: 'https://raw.githubusercontent.com/rtorchia/DSC-Envisalink/master/images/logo_IconX1.png',
+  iconX2Url: 'https://raw.githubusercontent.com/rtorchia/DSC-Envisalink/master/images/logo_IconX2.png',
+  iconX3Url: 'https://raw.githubusercontent.com/rtorchia/DSC-Envisalink/master/images/logo_IconX3.png',
   oauth: true,
   singleInstance: true
 )
