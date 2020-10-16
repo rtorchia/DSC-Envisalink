@@ -8,7 +8,7 @@
 
 metadata {
   definition (
-  	name: "DSC Away Panel",
+    name: "DSC Away Panel",
     author: "Ralph Torchia",
     namespace: 'rtorchia',
     ocfDeviceType: "oic.d.securitypanel",
@@ -200,13 +200,13 @@ def sendPartitionCommand(String state) {
 }
 
 def getPrettyName() {
-	return [
+    return [
     ready: "Ready",
     forceready: "Ready",
     notready: "Not Ready",
     stay: "Armed Stay",
-		away: "Armed Away",
-		alarmcleared: "Alarm Cleared",
+    away: "Armed Away",
+    alarmcleared: "Alarm Cleared",
     instant: "Armed Instant",
     night: "Armed Night",
     disarm: "Disarming",
