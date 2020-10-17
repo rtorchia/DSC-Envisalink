@@ -5,7 +5,7 @@
  *  Modified by: Matt Martz <matt.martz@gmail.com>
  *  Modified by: Jordan <jordan@xeron.cc>
  *  Modified by: Ralph Torchia
- *  Date: 2020-10-14
+ *  Date: 2020-10-17
  */
 
 definition(
@@ -185,7 +185,7 @@ def installzones() {
     'motion':'DSC Zone Motion',
     'smoke':'DSC Zone Smoke',
     'co':'DSC Zone CO',
-    'flood':'DSC Zone Flood',
+    'water':'DSC Zone Flood',
   ]
 
   log.debug "children are ${children}"
