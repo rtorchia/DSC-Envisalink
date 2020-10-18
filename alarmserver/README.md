@@ -12,9 +12,14 @@ Service Installation
 
 2. Set permission and copy to /usr/lib/alarmserver
 
-     chmod ug+x ~/alarmserver/*.py
-     
-     sudo cp -R ~/alarmserver /usr/lib/
+    (a) chmod ug+x ~/alarmserver/*.py
+   
+    (b) if this is a fresh installation: 
+            
+            mv ~/alarmserver/alarmserver.cfg.original ~/alarmserver/alarmserver.cfg
+    
+     (c) sudo cp -R ~/alarmserver /usr/lib/
+    
      
 
 2. Create a hard-link at /usr/lib/systemd/system/alarmserver.service
