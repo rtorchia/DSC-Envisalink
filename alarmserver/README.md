@@ -3,6 +3,7 @@ Pre-requisites
  - Python "requests" module is needed for Alarmserver python script.
  
      sudo apt-get install python-pip
+     
      pip install requests
 
 Service Installation
