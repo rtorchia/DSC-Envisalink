@@ -18,7 +18,7 @@ This integration is mostly complete and working, but some items do not work as S
 ### Alarmserver Setup
 
 1. Install and setup python 3.x on your server. (see https://www.python.org/)
-   If using Windows, you can also install python from the Microsoft Store (https://www.microsoft.com/store/productId/9MSSZTT1N39L)
+   If using Windows, you can also install Python from the Microsoft Store (https://www.microsoft.com/store/productId/9MSSZTT1N39L)
 
 2. Copy the contents of the alarmsever folder from github to your system. Make sure to install the python dependencies required for AlarmServer.
 
