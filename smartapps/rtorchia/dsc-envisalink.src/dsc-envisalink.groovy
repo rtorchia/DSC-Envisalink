@@ -5,91 +5,88 @@
  *  Modified by: Matt Martz <matt.martz@gmail.com>
  *  Modified by: Jordan <jordan@xeron.cc>
  *  Modified by: Ralph Torchia
+ *  Date: 2020-10-17
  */
 
 definition(
-    name: 'DSC-Envisalink',
-    namespace: 'rtorchia',
-    author: 'Ralph Torchia',
-    description: 'DSC-Envisalink Integration SmartApp',
-    category: 'My Apps',
-    iconUrl: 'https://github.com/rtorchia/DSC-Envisalink/blob/main/images/logo_IconX1.png?raw=true',
-    iconX2Url: 'https://github.com/rtorchia/DSC-Envisalink/blob/main/images/logo_IconX2.png?raw=true',
-    iconX3Url: 'https://github.com/rtorchia/DSC-Envisalink/blob/main/images/logo_IconX3.png?raw=true',
-    oauth: true,
-    singleInstance: true
+  name: 'DSC-Envisalink',
+  namespace: 'rtorchia',
+  author: 'Ralph Torchia',
+  description: 'DSC-Envisalink Integration SmartApp',
+  category: 'My Apps',
+  iconUrl: 'https://raw.githubusercontent.com/rtorchia/DSC-Envisalink/master/images/logo_IconX1.png',
+  iconX2Url: 'https://raw.githubusercontent.com/rtorchia/DSC-Envisalink/master/images/logo_IconX2.png',
+  iconX3Url: 'https://raw.githubusercontent.com/rtorchia/DSC-Envisalink/master/images/logo_IconX3.png',
+  oauth: true,
+  singleInstance: true
 )
 
 import groovy.json.JsonBuilder
 
 preferences {
-	page(name: "MainSetup")
+  page(name: "MainSetup")
 }
 
 def MainSetup() {
-    if (!state.accessToken) {
-        createAccessToken()
-    }
+  if (!state.accessToken) {
+    createAccessToken()
+  }
 	dynamicPage(name: "MainSetup", title: "DSC-Envisalink Setup", install:true, uninstall:true) {
 	  section('Alarmserver Setup:') {
-		input('ip', 'text', title: 'IP Address', description: 'The IP address of your alarmserver (required)', required: false)
-		input('port', 'text', title: 'Port Number', description: 'The port number (required)', required: false)
-		input 'sthmSync', 'enum', title: 'SmartThings Home Monitor Sync', required: false,
+  		input('ip', 'text', title: 'IP Address', description: 'The IP address of your alarmserver (required)', required: false)
+	  	input('port', 'text', title: 'Port Number', description: 'The port number (required)', required: false)
+		  input 'sthmSync', 'enum', title: 'SmartThings Home Monitor Sync', required: false,
 		  metadata: [
-		   values: ['Yes','No']
+		    values: ['Yes','No']
 		  ]
-		input 'shmBypass', 'enum', title: 'STHM Stay/Away Bypass', required: false,
-		  metadata: [
-		   values: ['Yes','No']
-		  ]
+		  input 'shmBypass', 'enum', title: 'STHM Stay/Away Bypass', required: false,
+		    metadata: [
+		      values: ['Yes','No']
+		    ]
 	  }
-      /*
-	  section('XBMC Notifications (optional):') {
-		// TODO: put inputs here
-		input 'xbmcserver', 'text', title: 'XBMC IP', description: 'IP Address', required: false
-		input 'xbmcport', 'number', title: 'XBMC Port', description: 'Port', required: false
+	  
+    section('Notifications (optional)') {
+		  input 'sendPush', 'enum', title: 'Push Notification', required: false,
+		    metadata: [
+		      values: ['Yes','No']
+		    ]
+		  input 'phone1', 'phone', title: 'Phone Number', required: false
 	  }
-      */
-	  section('Notifications (optional)') {
-		input 'sendPush', 'enum', title: 'Push Notification', required: false,
-		  metadata: [
-		   values: ['Yes','No']
-		  ]
-		input 'phone1', 'phone', title: 'Phone Number', required: false
+	  
+    section('Notification events (optional):') {
+		  input 'notifyEvents', 'enum', title: 'Which Events?', description: 'Events to notify on', required: false, multiple: true,
+		    options: [
+			    'all', 'partition alarm', 'partition armed', 'partition away', 'partition chime', 'partition disarm',
+			    'partition duress', 'partition entrydelay', 'partition exitdelay', 'partition forceready',
+			    'partition instantaway', 'partition instantstay', 'partition nochime', 'partition notready', 'partition ready',
+			    'partition restore', 'partition stay', 'partition trouble', 'partition keyfirealarm', 'partition keyfirerestore',
+			    'partition keyauxalarm', 'partition keyauxrestore', 'partition keypanicalarm', 'partition keypanicrestore',
+			    'led backlight on', 'led backlight off', 'led fire on', 'led fire off', 'led program on', 'led program off',
+			    'led trouble on', 'led trouble off', 'led bypass on', 'led bypass off', 'led memory on', 'led memory off',
+			    'led armed on', 'led armed off', 'led ready on', 'led ready off', 'zone alarm', 'zone clear', 'zone closed',
+			    'zone fault', 'zone open', 'zone restore', 'zone smoke', 'zone tamper'
+		    ]
 	  }
-	  section('Notification events (optional):') {
-		input 'notifyEvents', 'enum', title: 'Which Events?', description: 'Events to notify on', required: false, multiple: true,
-		  options: [
-			'all', 'partition alarm', 'partition armed', 'partition away', 'partition chime', 'partition disarm',
-			'partition duress', 'partition entrydelay', 'partition exitdelay', 'partition forceready',
-			'partition instantaway', 'partition instantstay', 'partition nochime', 'partition notready', 'partition ready',
-			'partition restore', 'partition stay', 'partition trouble', 'partition keyfirealarm', 'partition keyfirerestore',
-			'partition keyauxalarm', 'partition keyauxrestore', 'partition keypanicalarm', 'partition keypanicrestore',
-			'led backlight on', 'led backlight off', 'led fire on', 'led fire off', 'led program on', 'led program off',
-			'led trouble on', 'led trouble off', 'led bypass on', 'led bypass off', 'led memory on', 'led memory off',
-			'led armed on', 'led armed off', 'led ready on', 'led ready off', 'zone alarm', 'zone clear', 'zone closed',
-			'zone fault', 'zone open', 'zone restore', 'zone smoke', 'zone tamper'
-		  ]
+	  
+    section('SmartApp Name:') {
+		  label title:"SmartApp Label (optional)", required: false 
 	  }
-	  section('SmartApp Name:') {
-		label title:"SmartApp Label (optional)", required: false 
+	  
+    section('Token Info:') {
+		  paragraph "View this SmartApp's AppID, URL and Token Configuration to use it in the Alarmserver config."
+		  href url:"${apiServerUrl("/api/smartapps/installations/${app.id}/config?access_token=${state.accessToken}")}", style:"embedded", required:false, title:"Show Smartapp Token Info", description:"Tap, select, copy, then click \"Done\""
 	  }
-	  section('Token Info:') {
-		paragraph "View this SmartApp's AppID, URL and Token Configuration to use it in the Alarmserver config."
-		href url:"${apiServerUrl("/api/smartapps/installations/${app.id}/config?access_token=${state.accessToken}")}", style:"embedded", required:false, title:"Show Smartapp Token Info", description:"Tap, select, copy, then click \"Done\""
-	  }
-    }
+  }
 }
 mappings {
   path('/update')            { action: [POST: 'update'] }
   path('/installzones')      { action: [POST: 'installzones'] }
   path('/installpartitions') { action: [POST: 'installpartitions'] }
-if (!params.access_token || (params.access_token && params.access_token != state.accessToken)) {
-  path("/config")                         { action: [GET: "authError"] }
-	
-} else {
-  path("/config")                         { action: [GET: "renderConfig"]  }
-}
+  if (!params.access_token || (params.access_token && params.access_token != state.accessToken)) {
+    path("/config") { action: [GET: "authError"] }
+	} else {
+    path("/config") { action: [GET: "renderConfig"]  }
+  }
 }
 
 def initialize() {
@@ -100,7 +97,7 @@ def initialize() {
     subscribe(location, 'securitySystemStatus', sthmHandler)
   }
   if(!state.accessToken) {
-	createAccessToken()
+	  createAccessToken()
   }
 }
 
@@ -112,8 +109,8 @@ def sthmHandler(evt) {
     if (child != null) {
       log.debug "sthmHandler: using panel: ${child.device.deviceNetworkId} state: ${child.currentStatus}"
 
-    //map DSC states to simplified values for comparison
-	def dscMap = [
+      //map DSC states to simplified values for comparison
+	    def dscMap = [
         'alarm': 'on',
         'away':'armedAway',
         'entrydelay': 'on',
@@ -137,10 +134,10 @@ def sthmHandler(evt) {
           log.debug "sthmHandler: ${evt.value} is valid action for ${child.currentStatus}, armedStay sent"
         }
       }
-
     }
   }
 }
+/*
 def shmHandler(evt) {
   if (settings.sthmSync == 'Yes') {
     log.debug "shmHandler: SHM changed state to: ${evt.value}"
@@ -177,6 +174,7 @@ def shmHandler(evt) {
     }
   }
 }
+*/
 
 def installzones() {
   def children = getChildDevices()
@@ -187,7 +185,7 @@ def installzones() {
     'motion':'DSC Zone Motion',
     'smoke':'DSC Zone Smoke',
     'co':'DSC Zone CO',
-    'flood':'DSC Zone Flood',
+    'water':'DSC Zone Flood',
   ]
 
   log.debug "children are ${children}"
@@ -233,7 +231,7 @@ def installzones() {
           if ("${e}".contains('types: (null) values: [null]')) {
             log.debug "Device ${child.device.deviceNetworkId} was empty, likely deleted already."
           } else {
-             log.error e
+            log.error e
           }
         }
       }
@@ -275,12 +273,12 @@ def installpartitions() {
           partDevice.label = "${name}"
         } catch(IllegalArgumentException e) {
           log.debug "excepted for ${networkId}"
-           if ("${e}".contains('identifier required')) {
-             log.debug "Attempted update but device didn't exist. Creating ${networkId}"
-             partDevice = addChildDevice('dsc', "${device}", networkId, null, [name: "${name}", label:"${name}", completedSetup: true])
-           } else {
-             log.error "${e}"
-           }
+          if ("${e}".contains('identifier required')) {
+            log.debug "Attempted update but device didn't exist. Creating ${networkId}"
+            partDevice = addChildDevice('dsc', "${device}", networkId, null, [name: "${name}", label:"${name}", completedSetup: true])
+          } else {
+            log.error "${e}"
+          }
         }
       }
     }
@@ -331,16 +329,16 @@ def autoBypass() {
 }
 
 def sendUrl(url) {
-    def result = new physicalgraph.device.HubAction(
-        method: 'GET',
-        path: "/api/alarm/${url}",
-        headers: [
-            HOST: "${settings.ip}:${settings.port}"
-        ]
-    )
+  def result = new physicalgraph.device.HubAction(
+    method: 'GET',
+    path: "/api/alarm/${url}",
+    headers: [
+      HOST: "${settings.ip}:${settings.port}"
+    ]
+  )
 	sendHubCommand(result)
 	log.debug 'response' : "Request to send url: ${url} received"
-    return result
+  return result
 }
 
 
@@ -357,23 +355,23 @@ def updated() {
 }
 
 def authError() {
-    [error: "Permission denied"]
+  [error: "Permission denied"]
 }
 
 def renderConfig() {
-    def configJson = new groovy.json.JsonOutput().toJson([
-        description: "SmartApp Token/AppID",
-        platforms: [
-            [
-                app_url: apiServerUrl("/api/smartapps/installations"),
-                app_id: app.id,
-                access_token:  state.accessToken
-            ]
-        ],
-    ])
+  def configJson = new groovy.json.JsonOutput().toJson([
+    description: "SmartApp Token/AppID",
+    platforms: [
+      [
+        app_url: apiServerUrl("/api/smartapps/installations"),
+        app_id: app.id,
+        access_token:  state.accessToken
+      ]
+    ],
+  ])
 
-    def configString = new groovy.json.JsonOutput().prettyPrint(configJson)
-    render contentType: "text/plain", data: configString
+  def configString = new groovy.json.JsonOutput().prettyPrint(configJson)
+  render contentType: "text/plain", data: configString
 }
 
 private update() {
@@ -434,7 +432,7 @@ private update() {
     updateZoneDevices(update.'value', update.'status')
   } else if ("${update.'type'}" == 'partition') {
     if (settings.sthmSync == 'Yes') {
-      // Map DSC states to SHM modes, only using absolute states for now, no exit/entry delay
+      // Map DSC states to SHM/STHM modes, only using absolute states for now, no exit/entry delay
       def shmMap = [
         'away':'away',
         'forceready':'off',
@@ -488,17 +486,6 @@ private updateZoneDevices(zonenum,zonestatus) {
     log.debug "zone: device $zonedevice.displayName at $zonedevice.deviceNetworkId is ${zonestatus}"
     //Was True... Zone Device: Front Door Sensor at zone1 is closed
     zonedevice.zone("${zonestatus}")
-    if ("${settings.xbmcserver}" != "") {  //Note: I haven't tested this if statement, but it looks like it would work.
-      def lanaddress = "${settings.xbmcserver}:${settings.xbmcport}"
-      def deviceNetworkId = "1234"
-      def json = new JsonBuilder()
-      def messagetitle = "$zonedevice.displayName".replaceAll(' ','%20')
-      log.debug "$messagetitle"
-      json.call("jsonrpc":"2.0","method":"GUI.ShowNotification","params":[title: "$messagetitle",message: "${zonestatus}"],"id":1)
-      def xbmcmessage = "/jsonrpc?request="+json.toString()
-      def result = new physicalgraph.device.HubAction("""GET $xbmcmessage HTTP/1.1\r\nHOST: $lanaddress\r\n\r\n""", physicalgraph.device.Protocol.LAN, "${deviceNetworkId}")
-      sendHubCommand(result)
-    }
   }
 }
 
