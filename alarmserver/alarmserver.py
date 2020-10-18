@@ -1,4 +1,5 @@
-#! /usr/bin/python3.8
+#! /usr/bin/python
+##! /usr/bin/python3.8
 ## Alarm Server
 ## Supporting Envisalink 2DS/3/4
 ## Written by donnyk+envisalink@gmail.com
