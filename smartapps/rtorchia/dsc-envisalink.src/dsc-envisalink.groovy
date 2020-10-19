@@ -5,7 +5,7 @@
  *  Modified by: Matt Martz <matt.martz@gmail.com>
  *  Modified by: Jordan <jordan@xeron.cc>
  *  Modified by: Ralph Torchia
- *  Date: 2020-10-17
+ *  Date: 2020-10-18
  */
 
 definition(
@@ -185,7 +185,7 @@ def installzones() {
     'motion':'DSC Zone Motion',
     'smoke':'DSC Zone Smoke',
     'co':'DSC Zone CO',
-    'water':'DSC Zone Flood',
+    'water':'DSC Zone Water',
   ]
 
   log.debug "children are ${children}"
@@ -199,7 +199,7 @@ def installzones() {
 
     if (zoneDevice == null) {
       log.debug "add new child: device: ${device} networkId: ${networkId} name: ${name}"
-      zoneDevice = addChildDevice('dsc', "${device}", networkId, null, [name: "${name}", label:"${name}", completedSetup: true])
+      zoneDevice = addChildDevice('rtorchia', "${device}", networkId, null, [name: "${name}", label:"${name}", completedSetup: true])
     } else {
       log.debug "zone device was ${zoneDevice}"
       try {
@@ -211,7 +211,7 @@ def installzones() {
         log.debug "excepted for ${networkId}"
          if ("${e}".contains('identifier required')) {
            log.debug "Attempted update but device didn't exist. Creating ${networkId}"
-           zoneDevice = addChildDevice("dsc", "${device}", networkId, null, [name: "${name}", label:"${name}", completedSetup: true])
+           zoneDevice = addChildDevice("rtorchia", "${device}", networkId, null, [name: "${name}", label:"${name}", completedSetup: true])
          } else {
            log.error "${e}"
          }
@@ -263,7 +263,7 @@ def installpartitions() {
 
       if (partDevice == null) {
         log.debug "add new child: device: ${device} networkId: ${networkId} name: ${name}"
-        partDevice = addChildDevice('dsc', "${device}", networkId, null, [name: "${name}", label:"${name}", completedSetup: true])
+        partDevice = addChildDevice('rtorchia', "${device}", networkId, null, [name: "${name}", label:"${name}", completedSetup: true])
       } else {
         log.debug "part device was ${partDevice}"
         try {
@@ -275,7 +275,7 @@ def installpartitions() {
           log.debug "excepted for ${networkId}"
           if ("${e}".contains('identifier required')) {
             log.debug "Attempted update but device didn't exist. Creating ${networkId}"
-            partDevice = addChildDevice('dsc', "${device}", networkId, null, [name: "${name}", label:"${name}", completedSetup: true])
+            partDevice = addChildDevice('rtorchia', "${device}", networkId, null, [name: "${name}", label:"${name}", completedSetup: true])
           } else {
             log.error "${e}"
           }
