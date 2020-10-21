@@ -40,7 +40,7 @@ This integration is mostly complete and working, but some items do not work as S
 
 5. Click _Enable OAuth_ in Smart App" and save the changes.
 
-### Smartapp Setup
+### SmartApp Setup
 
 1. On your mobile device, open the SmartThings app, go to the SmartApps section, and add/install DSC-Envisalink.
 
