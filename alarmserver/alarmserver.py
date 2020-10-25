@@ -1,13 +1,13 @@
-#! /usr/bin/python3.8
+#!/usr/bin/python
+#!/usr/bin/python3.8
 ## Alarm Server
 ## Supporting Envisalink 2DS/3/4
 ## Written by donnyk+envisalink@gmail.com
 ## Lightly improved by leaberry@gmail.com
-## SmartThings away/stay mode by jordan@xeron.cc
-## Updated for Python 3.8 by ralphtorchia1@gmail.com
+## Updated and modified for Python 3.8 by ralphtorchia1@gmail.com
+## Smartthings away/stay mode by jordan@xeron.cc
 ##
 ## This code is under the terms of the GPL v3 license.
-## Date: 2020-10-12
 
 
 import asyncore, asynchat
@@ -890,17 +890,20 @@ if __name__=="__main__":
             outfile.addHandler(outfile_handler)
             print(("Writing logfile to %s" % config.LOGFILE))
 
+        alarmserver_logger("====================================")
         alarmserver_logger("Alarm Server Starting...")
         alarmserver_logger("Currently Supporting Envisalink 2DS/3/4 only")
         alarmserver_logger("Tested on a DSC PC1616 + EVL-3")
         alarmserver_logger("and on a DSC PC1832 + EVL-2DS")
         alarmserver_logger("and on a DSC PC1832 v4.6 + EVL-4")
         alarmserver_logger("and on a DSC PC1864 v4.6 + EVL-3")
+        alarmserver_logger("and on a DSC PC1864 v4.6 + EVL-4")
+        alarmserver_logger("====================================")
 
         DeviceSetup(config)
         
         try:
-            server = AlarmServer(config)
+           server = AlarmServer(config)
         except:
             alarmserver_logger("Shutting down server due to errors.")
             sys.exit()
