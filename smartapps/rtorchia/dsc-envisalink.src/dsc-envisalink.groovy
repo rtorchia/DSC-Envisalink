@@ -5,7 +5,7 @@
  *  Modified by: Matt Martz <matt.martz@gmail.com>
  *  Modified by: Jordan <jordan@xeron.cc>
  *  Modified by: Ralph Torchia
- *  Date: 2020-10-18
+ *  Date: 2020-10-25
  */
 
 definition(
@@ -32,14 +32,14 @@ def MainSetup() {
     createAccessToken()
   }
 	dynamicPage(name: "MainSetup", title: "DSC-Envisalink Setup", install:true, uninstall:true) {
-	  section('Alarmserver Setup:') {
-  		input('ip', 'text', title: 'IP Address', description: 'The IP address of your alarmserver (required)', required: false)
+	  section('AlarmServer Setup:') {
+  		input('ip', 'text', title: 'IP Address', description: 'The IP address of your AlarmServer (required)', required: false)
 	  	input('port', 'text', title: 'Port Number', description: 'The port number (required)', required: false)
 		  input 'sthmSync', 'enum', title: 'SmartThings Home Monitor Sync', required: false,
 		  metadata: [
 		    values: ['Yes','No']
 		  ]
-		  input 'shmBypass', 'enum', title: 'STHM Stay/Away Bypass', required: false,
+		  input 'sthmBypass', 'enum', title: 'STHM Stay/Away Bypass', required: false,
 		    metadata: [
 		      values: ['Yes','No']
 		    ]
@@ -68,10 +68,6 @@ def MainSetup() {
 		    ]
 	  }
 	  
-    section('SmartApp Name:') {
-		  label title:"SmartApp Label (optional)", required: false 
-	  }
-	  
     section('Token Info:') {
 		  paragraph "View this SmartApp's AppID, URL and Token Configuration to use it in the Alarmserver config."
 		  href url:"${apiServerUrl("/api/smartapps/installations/${app.id}/config?access_token=${state.accessToken}")}", style:"embedded", required:false, title:"Show Smartapp Token Info", description:"Tap, select, copy, then click \"Done\""
@@ -90,12 +86,12 @@ mappings {
 }
 
 def initialize() {
+
   if (settings.sthmSync == 'Yes') {
-    //SHM
-    subscribe(location, 'alarmSystemStatus', sthmHandler)
     //STHM
     subscribe(location, 'securitySystemStatus', sthmHandler)
   }
+
   if(!state.accessToken) {
 	  createAccessToken()
   }
@@ -103,78 +99,38 @@ def initialize() {
 
 def sthmHandler(evt) {
   if (settings.sthmSync == 'Yes') {
-    log.debug "sthmHandler: STHM changed state to: ${evt.value}"
+    log.debug "sthmHandler: STHM changed status to: ${evt.value}"
     def children = getChildDevices()
     def child = children.find { item -> item.device.deviceNetworkId in ['dscstay1', 'dscaway1'] }
     if (child != null) {
-      log.debug "sthmHandler: using panel: ${child.device.deviceNetworkId} state: ${child.currentStatus}"
+      def panelStatus = child.currentPartitionStatus
+      log.debug "sthmHandler: using panel: ${child.device.deviceNetworkId} status: ${panelStatus}"
 
-      //map DSC states to simplified values for comparison
+      //map DSC Panel status to simplified values for comparison
 	    def dscMap = [
-        'alarm': 'on',
-        'away':'armedAway',
-        'entrydelay': 'on',
-        'exitdelay': 'on',
-        'forceready':'disarmed',
-        'instantaway':'armedAway',
-        'instantstay':'armedStay',
-        'ready':'disarmed',
-        'stay':'armedStay',
+        'Armed Stay':'armedAway',
+        'Entry Dealy': 'on',
+        'Exit Delay': 'on',
+        'Force Ready':'disarmed',
+        'Ready':'disarmed',
+        'Armed Stay':'armedStay',
       ]
 
-      if (dscMap[child.currentStatus] && evt.value != dscMap[child.currentStatus]) {
-        if (evt.value == 'disarmed' && dscMap[child.currentStatus] in ['armedStay', 'armedAway', 'on'] ) {
+      if (dscMap[panelStatus] && evt.value != dscMap[panelStatus]) {
+        if (evt.value == 'disarmed' && dscMap[panelStatus] in ['armedStay', 'armedAway', 'on'] ) {
           sendUrl('disarm')
-          log.debug "sthmHandler: ${evt.value} is valid action for ${child.currentStatus}, disarmed sent"
-        } else if (evt.value == 'armedAway' && dscMap[child.currentStatus] in ['armedStay', 'disarmed'] ) {
+          log.debug "sthmHandler: ${evt.value} is valid action for ${panelStatus}, disarmed sent"
+        } else if (evt.value == 'armedAway' && dscMap[panelStatus] in ['armedStay', 'disarmed'] ) {
           sendUrl('arm')
-          log.debug "sthmHandler: ${evt.value} is valid action for ${child.currentStatus}, armedAway sent"
-        } else if (evt.value == 'armedStay' && dscMap[child.currentStatus] in ['armedAway', 'disarmed'] ) {
+          log.debug "sthmHandler: ${evt.value} is valid action for ${panelStatus}, armedAway sent"
+        } else if (evt.value == 'armedStay' && dscMap[panelStatus] in ['armedAway', 'disarmed'] ) {
           sendUrl('stayarm')
-          log.debug "sthmHandler: ${evt.value} is valid action for ${child.currentStatus}, armedStay sent"
+          log.debug "sthmHandler: ${evt.value} is valid action for ${panelStatus}, armedStay sent"
         }
       }
     }
   }
 }
-/*
-def shmHandler(evt) {
-  if (settings.sthmSync == 'Yes') {
-    log.debug "shmHandler: SHM changed state to: ${evt.value}"
-    def children = getChildDevices()
-    def child = children.find { item -> item.device.deviceNetworkId in ['dscstay1', 'dscaway1'] }
-    if (child != null) {
-      log.debug "shmHandler: using panel: ${child.device.deviceNetworkId} state: ${child.currentStatus}"
-      //map DSC states to simplified values for comparison
-      def dscMap = [
-        'alarm': 'on',
-        'away':'away',
-        'entrydelay': 'on',
-        'exitdelay': 'on',
-        'forceready':'off',
-        'instantaway':'away',
-        'instantstay':'stay',
-        'ready':'off',
-        'stay':'stay',
-      ]
-
-      if (dscMap[child.currentStatus] && evt.value != dscMap[child.currentStatus]) {
-        if (evt.value == 'off' && dscMap[child.currentStatus] in ['stay', 'away', 'on'] ) {
-          sendUrl('disarm')
-          log.debug "shmHandler: ${evt.value} is valid action for ${child.currentStatus}, disarm sent"
-        } else if (evt.value == 'away' && dscMap[child.currentStatus] in ['stay', 'off'] ) {
-          sendUrl('arm')
-          log.debug "shmHandler: ${evt.value} is valid action for ${child.currentStatus}, arm sent"
-        } else if (evt.value == 'stay' && dscMap[child.currentStatus] in ['away', 'off'] ) {
-          sendUrl('stayarm')
-          log.debug "shmHandler: ${evt.value} is valid action for ${child.currentStatus}, stayarm sent"
-        }
-      }
-      
-    }
-  }
-}
-*/
 
 def installzones() {
   def children = getChildDevices()
@@ -308,7 +264,7 @@ def installpartitions() {
 
 def autoBypass() {
   def closedList = ['clear','closed','dry','inactive']
-  def deviceList = ['carbonMonoxide','contact','motion','smoke','water']
+  def deviceList = ['co','contact','motion','smoke','water']
   def children = getChildDevices()
   def zones = children.findAll { it.device.deviceNetworkId.startsWith("dsczone") }
   def bypassList = []
@@ -432,16 +388,7 @@ private update() {
     updateZoneDevices(update.'value', update.'status')
   } else if ("${update.'type'}" == 'partition') {
     if (settings.sthmSync == 'Yes') {
-      // Map DSC states to SHM/STHM modes, only using absolute states for now, no exit/entry delay
-      def shmMap = [
-        'away':'away',
-        'forceready':'off',
-        'instantaway':'away',
-        'instantstay':'stay',
-        'notready':'off',
-        'ready':'off',
-        'stay':'stay',
-      ]
+      // Map DSC states to STHM modes, only using absolute states for now, no exit/entry delay
       def sthmMap = [
         'away':'armedAway',
         'forceready':'disarmed',
@@ -452,14 +399,8 @@ private update() {
         'stay':'armedStay',
       ]
 
-      if (shmMap[update.'status']) {
-        if (settings.shmBypass != 'Yes' || !(location.currentState("alarmSystemStatus")?.value in ['away','stay'] && shmMap[update.'status'] in ['away','stay'])) {
-          log.debug "sending Smart Home Monitor: ${shmMap[update.'status']} for status: ${update.'status'}"
-          sendLocationEvent(name: "alarmSystemStatus", value: shmMap[update.'status'])
-        }
-      }
       if (sthmMap[update.'status']) {
-        if (settings.shmBypass != 'Yes' || !(location.currentState("securitySystemStatus")?.value in ['armedAway','armedStay'] && sthmMap[update.'status'] in ['armedAway','armedStay'])) {
+        if (settings.sthmBypass != 'Yes' || !(location.currentState("securitySystemStatus")?.value in ['armedAway','armedStay'] && sthmMap[update.'status'] in ['armedAway','armedStay'])) {
           log.debug "sending SmartThings Home Monitor: ${sthmMap[update.'status']} for status: ${update.'status'}"
           sendLocationEvent(name: "securitySystemStatus", value: sthmMap[update.'status'])
         }
