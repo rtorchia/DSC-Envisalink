@@ -3,7 +3,7 @@
  *
  *  Author: Ralph Torchia
  *  Original Code By: Jordan <jordan@xeron.cc>, Rob Fisher <robfish@att.net>, Carlos Santiago <carloss66@gmail.com>, JTT <aesystems@gmail.com>
- *  Date: 2020-10-25
+ *  Date: 2020-10-26
  */
  
 metadata {
@@ -48,7 +48,8 @@ def partition(String evt, String partition, Map parameters) {
   altState=getPrettyName().get(evt)
   
   if (onList.contains(evt)) {
-    sendEvent (name: "switch", value: "on")
+    def switchStatus = device.currentState("switch")?.value
+    if (switchStatus == "off") { sendEvent (name: "switch", value: "on") }
   } else if (!(chimeList.contains(evt) || troubleMap[evt] || evt.startsWith('led') || evt.startsWith('key'))) {
     sendEvent (name: "switch", value: "off")
   }
@@ -77,23 +78,18 @@ def partition(String evt, String partition, Map parameters) {
   }
 }
 
-//arm stay switch on
+//arm stay = switch on
 def on() {
   log.debug "Triggered on() for Armed (Stay)"
-  sendEvent (name: "switch", value: "on")
   stay()
+  sendEvent (name: "switch", value: "on")
 }
 
-//disarm switch off
+//disarm = switch off
 def off() {
   log.debug "Triggered off() for disarm"
-  sendEvent (name: "switch", value: "off")
   disarm()
-}
-
-def armStay(bypass) {
-  log.debug "Triggered armStay()"
-  stay()
+  sendEvent (name: "switch", value: "off")
 }
 
 def disarm() {

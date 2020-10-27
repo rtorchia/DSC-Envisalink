@@ -3,7 +3,7 @@
  *
  *  Author: Ralph Torchia
  *  Original Code By: Jordan <jordan@xeron.cc>, Rob Fisher <robfish@att.net>, Carlos Santiago <carloss66@gmail.com>, JTT <aesystems@gmail.com>
- *  Date: 2020-10-25
+ *  Date: 2020-10-26
  */
 
 metadata {
@@ -48,7 +48,8 @@ def partition(String evt, String partition, Map parameters) {
   altState=getPrettyName().get(evt)
 
   if (onList.contains(evt)) {
-    sendEvent (name: "switch", value: "on")
+    def switchStatus = device.currentState("switch")?.value
+    if (switchStatus == "off") { sendEvent (name: "switch", value: "on") }
   } else if (!(chimeList.contains(evt) || troubleMap[evt] || evt.startsWith('led') || evt.startsWith('key'))) {
     sendEvent (name: "switch", value: "off")
   }
@@ -77,23 +78,18 @@ def partition(String evt, String partition, Map parameters) {
   }
 }
 
-//arm away switch on
+//arm away = switch on
 def on() {
   log.debug "Triggered on() for Armed (Away)"
-  sendEvent (name: "switch", value: "on")
   away()
+  sendEvent (name: "switch", value: "on")
 }
 
-//disarm switch off
+//disarm = switch off
 def off() {
   log.debug "Triggered off() for disarmed"
-  sendEvent (name: "switch", value: "off")
   disarm()
-}
-
-def armAway(bypass) {
-  log.debug "Triggered armAway()"
-  away()
+  sendEvent (name: "switch", value: "off")
 }
 
 def disarm() {
@@ -163,7 +159,7 @@ def togglechime() {
   parent.sendUrl("togglechime?part=${device.deviceNetworkId[-1]}")
 }
 
-def setdPartitionCommand(String evt) {
+def setPartitionCommand(String evt) {
   def altState = ""
   altState=getPrettyName().get(evt)
   
