@@ -82,7 +82,8 @@ def partition(String evt, String partition, Map parameters) {
 def on() {
   log.debug "Triggered on() for Armed (Away)"
   away()
-  sendEvent (name: "switch", value: "on")
+  if (switchStatus == "off") { sendEvent (name: "switch", value: "on") }
+  //sendEvent (name: "switch", value: "on")
 }
 
 //disarm = switch off
