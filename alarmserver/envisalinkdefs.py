@@ -3,6 +3,8 @@
 ## Written by donnyk+envisalink@gmail.com
 ##
 ## This code is under the terms of the GPL v3 license.
+## Error codes added by ralphtorchia1@gmail.com
+## Date: 2020-10-28
 
 evl_Defaults = {
 	'zone' : {'open' : False, 'fault' : False, 'alarm' : False, 'tamper' : False},
@@ -91,3 +93,25 @@ evl_ResponseTypes = {
     921 : {'name' : 'Master Code Required', 'description' : 'This command will tell the API to enter a master access code. Once entered, the 200 command will be sent to perform the required action. The code should be entered within the window time of the panel.'},
     922 : {'name' : 'Installers Code Required', 'description' : 'This command will tell the API to enter an installers access code. Once entered, the 200 command will be sent to perform the required action. The code should be entered within the window time of the panel.'},    
   }
+evl_ErrorCodes = {
+     0 : 'No Error',
+     1 : 'RS-232 Receive Buffer Overrun (a command is received while another is still being processed)',
+     2 : 'RS-232 Receive Buffer Overflow',
+    10 : 'Keybus Transmit Buffer Overrun',
+    11 : 'Keybus Transmit Time Timeout',
+    12 : 'Keybus Transmit Mode Timeout',
+    13 : 'Keybus Transmit Keystring Timeout',
+    14 : 'Keybus Not Functioning (the S5401D cannot communicate with the security system)',
+    15 : 'Keybus Busy (Attempting to Disarm or Arm with user code)',
+    16 : 'Keybus Busy – Lockout (The panel is currently in Keypad Lockout – too many disarm attempts)',
+    17 : 'Keybus Busy – Installers Mode (Panel is in installers mode, most functions are unavailable)',
+    18 : 'Keybus Busy – General Busy (The partition requested is busy)',
+    20 : 'API Command Syntax Error',
+    21 : 'API Command Partition Error (Requested Partition is out of bounds)',
+    22 : 'API Command Not Supported',
+    23 : 'API System Not Armed (sent in response to a disarm command)',
+    24 : 'API System Not Ready to Arm (system is either busy, or already armed)',
+    25 : 'API Command Invalid Length',
+    26 : 'API User Code not Required',
+    27 : 'API Invalid Characters in Command (no alpha characters are allowed except for checksum)'
+}
