@@ -3,7 +3,7 @@
  *
  *  Author: Ralph Torchia
  *  Original Code By: Jordan <jordan@xeron.cc>, Rob Fisher <robfish@att.net>, Carlos Santiago <carloss66@gmail.com>, JTT <aesystems@gmail.com>
- *  Date: 2020-10-26
+ *  Date: 2020-10-29
  */
 
 metadata {
@@ -46,9 +46,9 @@ def partition(String evt, String partition, Map parameters) {
   
   def altState = ""
   altState=getPrettyName().get(evt)
-
+  def switchStatus = device.currentState("switch").value
+  
   if (onList.contains(evt)) {
-    def switchStatus = device.currentState("switch")?.value
     if (switchStatus == "off") { sendEvent (name: "switch", value: "on") }
   } else if (!(chimeList.contains(evt) || troubleMap[evt] || evt.startsWith('led') || evt.startsWith('key'))) {
     sendEvent (name: "switch", value: "off")
@@ -73,6 +73,7 @@ def partition(String evt, String partition, Map parameters) {
     //sendEvent (name: "${name}", value: "${value}")
   } else {
     // Send final event
+    //sendEvent (name: "status", value: "${evt}")
     sendEvent (name: "partitionStatus", value: "${altState}")
     sendEvent (name: "partitionCommand", value: "Select command", descriptionText: "${evt}")
   }
@@ -80,17 +81,22 @@ def partition(String evt, String partition, Map parameters) {
 
 //arm away = switch on
 def on() {
+  def switchStatus = device.currentState("switch").value
   log.debug "Triggered on() for Armed (Away)"
-  away()
-  if (switchStatus == "off") { sendEvent (name: "switch", value: "on") }
-  //sendEvent (name: "switch", value: "on")
+  if (switchStatus == "off") {
+    sendEvent (name: "switch", value: "on")
+    //sendEvent(name: "securitySystemStatus", value: "armedAway")
+    away()
+  }
 }
+
+def armAway(evt) { on() }
 
 //disarm = switch off
 def off() {
   log.debug "Triggered off() for disarmed"
-  disarm()
   sendEvent (name: "switch", value: "off")
+  disarm()
 }
 
 def disarm() {

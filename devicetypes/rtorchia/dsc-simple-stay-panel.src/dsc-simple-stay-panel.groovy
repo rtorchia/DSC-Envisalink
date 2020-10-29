@@ -35,14 +35,20 @@ def initialize() {
 
 def armStay(evt) {
     log.debug "Triggered armStay(${evt.value})"
-    sendEvent(name: "switch", value: "on")
-    sendEvent(name: "securitySystemStatus", value: "armedStay")
+    def switchStatus = device.currentState("switch").value
+    if (switchStatus == "off") {
+      sendEvent(name: "switch", value: "on")
+      //sendEvent(name: "securitySystemStatus", value: "armedStay")
+    }
 }
 
 def armAway(evt) {
     log.debug "Triggered armAway(${evt.value})"
-    sendEvent(name: "switch", value: "on")
-    sendEvent(name: "securitySystemStatus", value: "armedAway")
+    def switchStatus = device.currentState("switch").value
+    if (switchStatus == "off") {
+      sendEvent(name: "switch", value: "on")
+      //sendEvent(name: "securitySystemStatus", value: "armedAway")
+    }
 }
 
 def disarm() {
