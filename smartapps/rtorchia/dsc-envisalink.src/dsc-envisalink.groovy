@@ -5,7 +5,7 @@
  *  Modified by: Matt Martz <matt.martz@gmail.com>
  *  Modified by: Jordan <jordan@xeron.cc>
  *  Modified by: Ralph Torchia
- *  Date: 2020-10-25
+ *  Date: 2020-10-28
  */
 
 definition(
@@ -90,6 +90,7 @@ def initialize() {
   if (settings.sthmSync == 'Yes') {
     //STHM
     subscribe(location, 'securitySystemStatus', sthmHandler)
+    subscribe(location, 'alarmSystemStatus', sthmHandler)
   }
 
   if(!state.accessToken) {
@@ -107,8 +108,8 @@ def sthmHandler(evt) {
       log.debug "sthmHandler: using panel: ${child.device.deviceNetworkId} status: ${panelStatus}"
 
       //map DSC Panel status to simplified values for comparison
-	    def dscMap = [
-        'Armed Stay':'armedAway',
+	  def dscMap = [
+        'Armed Away':'armedAway',
         'Entry Dealy': 'on',
         'Exit Delay': 'on',
         'Force Ready':'disarmed',
