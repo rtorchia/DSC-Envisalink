@@ -26,6 +26,7 @@ from logging.handlers import RotatingFileHandler
 from envisalinkdefs import evl_ResponseTypes
 from envisalinkdefs import evl_Defaults
 from envisalinkdefs import evl_ArmModes
+from envisalinkdefs import evl_ErrorCodes
 
 LOGTOFILE = False
 
@@ -315,7 +316,8 @@ class EnvisalinkClient(asynchat.async_chat):
         self._loggedin = False
         self.close()
         alarmserver_logger("Error, disconnected from %s:%i" % ( self._config.ENVISALINKHOST, self._config.ENVISALINKPORT))
-        Print ("ERROR", msg = sys.stderror)
+        alarmserver_logger("ERROR: %s" % (sys.stderr))
+        # Print ("ERROR", msg = sys.stderr)
         self.do_connect(True)
 
     def send_command(self, code, data, checksum = True):
@@ -337,7 +339,9 @@ class EnvisalinkClient(asynchat.async_chat):
                 event = getMessageType(code)
                 message = self.format_event(event, parameters)
                 alarmserver_logger("RX < " + str(code) +" - " + parameters + " - " + message)
-
+                if code == 502:
+                    errcode = int(input[3:6])
+                    alarmserver_logger(" => " + message +" = " + evl_ErrorCodes[errcode])
                 try:
                     handler = "handle_%s" % evl_ResponseTypes[code]["handler"]
                 except KeyError:
@@ -682,7 +686,7 @@ class AlarmServer(asyncore.dispatcher):
             part="1"
 
         if query.path == "/":
-            channel.pushfile("index.html");
+            channel.pushfile("index.html")
         elif query.path == "/api":
             channel.pushok(json.dumps(ALARMSTATE))
         elif query.path == "/api/alarm/arm":
@@ -870,6 +874,8 @@ def main(argv):
             global conffile
             conffile = arg
 
+def usage():
+    print(("Usage: " + sys.argv[0] + " -c <file>"))
 
 if __name__=="__main__":
     cfg_file="alarmserver.cfg"
@@ -921,7 +927,7 @@ if __name__=="__main__":
         else:
             shutdown_server(server)
     else:
-        print("Could not find configuration file %s" % confile)
+        print("Could not find configuration file %s" % conffile)
 
 def shutdown_server(server):
     alarmserver_logger("Shutting down server.")
