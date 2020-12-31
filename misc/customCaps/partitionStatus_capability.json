@@ -1,0 +1,51 @@
+{
+    "dashboard": {
+        "states": [
+            {
+                "label": "{{partitionStatus.value}}"
+            }
+        ],
+        "actions": [],
+        "basicPlus": []
+    },
+    "detailView": [
+        {
+            "label": "Partition Status",
+            "displayType": "state",
+            "state": {
+                "label": "{{partitionStatus.value}}"
+            }
+        }
+    ],
+    "automation": {
+        "conditions": [
+            {
+                "label": "Partition Status:",
+                "displayType": "list",
+                "list": {
+                    "alternatives": [
+                        {
+                            "key": "away",
+                            "value": "Arm Away",
+                            "type": "active"
+                        },
+                        {
+                            "key": "stay",
+                            "value": "Arm Stay",
+                            "type": "active"
+                        },
+                        {
+                            "key": "disarmed",
+                            "value": "Disarmed",
+                            "type": "active"
+                        }
+                    ]
+                }
+            }
+
+        ],
+        "actions": []
+    },
+    "id": "pizzafiber16443.partitionStatus",
+    "version": 1
+}

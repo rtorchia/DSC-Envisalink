@@ -1,0 +1,172 @@
+{
+    "type": "dth",
+    "iconUrl": null,
+    "dashboard": {
+        "states": [
+            {
+                "component": "main",
+                "capability": "smokeDetector",
+                "version": 1,
+                "values": [],
+                "patch": [],
+                "visibleCondition": null
+            },
+            {
+                "component": "main",
+                "capability": "sensor",
+                "version": 1,
+                "values": [],
+                "patch": [],
+                "visibleCondition": null
+            }
+        ],
+        "actions": [
+            {
+                "component": "main",
+                "capability": "smokeDetector",
+                "version": 1,
+                "values": [],
+                "patch": [],
+                "visibleCondition": null
+            },
+            {
+                "component": "main",
+                "capability": "sensor",
+                "version": 1,
+                "values": [],
+                "patch": [],
+                "visibleCondition": null
+            }
+        ]
+    },
+    "detailView": [
+        {
+            "component": "main",
+            "capability": "smokeDetector",
+            "version": 1,
+            "values": [],
+            "patch": [],
+            "visibleCondition": null
+        },
+        {
+            "component": "main",
+            "capability": "pizzafiber16443.troubleStatus",
+            "version": 1,
+            "values": [],
+            "patch": [],
+            "visibleCondition": null
+        },
+        {
+            "component": "main",
+            "capability": "alarm",
+            "version": 1,
+            "values": [],
+            "patch": [],
+            "visibleCondition": null
+        },
+        {
+            "component": "main",
+            "capability": "pizzafiber16443.zoneBypass",
+            "version": 1,
+            "values": [],
+            "patch": [],
+            "visibleCondition": null
+        },
+        {
+            "component": "main",
+            "capability": "sensor",
+            "version": 1,
+            "values": [],
+            "patch": [],
+            "visibleCondition": null
+        }
+    ],
+    "automation": {
+        "conditions": [
+            {
+                "component": "main",
+                "capability": "smokeDetector",
+                "version": 1,
+                "values": [],
+                "patch": [],
+                "visibleCondition": null
+            },
+            {
+                "component": "main",
+                "capability": "pizzafiber16443.troubleStatus",
+                "version": 1,
+                "values": [],
+                "patch": [],
+                "visibleCondition": null
+            },
+                {
+                "component": "main",
+                "capability": "alarm",
+                "version": 1,
+                "values": [],
+                "patch": [],
+                "visibleCondition": null
+            },
+            {
+                "component": "main",
+                "capability": "pizzafiber16443.zoneBypass",
+                "version": 1,
+                "values": [],
+                "patch": [],
+                "visibleCondition": null
+            },
+            {
+                "component": "main",
+                "capability": "sensor",
+                "version": 1,
+                "values": [],
+                "patch": [],
+                "visibleCondition": null
+            }
+        ],
+        "actions": [
+            {
+                "component": "main",
+                "capability": "smokeDetector",
+                "version": 1,
+                "values": [],
+                "patch": [],
+                "visibleCondition": null
+            },
+            {
+                "component": "main",
+                "capability": "pizzafiber16443.troubleStatus",
+                "version": 1,
+                "values": [],
+                "patch": [],
+                "visibleCondition": null
+            },
+                {
+                "component": "main",
+                "capability": "alarm",
+                "version": 1,
+                "values": [],
+                "patch": [],
+                "visibleCondition": null
+            },
+            {
+                "component": "main",
+                "capability": "pizzafiber16443.zoneBypass",
+                "version": 1,
+                "values": [],
+                "patch": [],
+                "visibleCondition": null
+            },
+            {
+                "component": "main",
+                "capability": "sensor",
+                "version": 1,
+                "values": [],
+                "patch": [],
+                "visibleCondition": null
+            }
+        ]
+    },
+    "vid": "26940d6f-f6ff-30f3-904f-da5eea4b2afa",
+    "mnmn": "SmartThingsCommunity"
+}

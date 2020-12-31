@@ -1,0 +1,51 @@
+{
+    "dashboard": {
+        "states": [
+            {
+                "label": "{{troubleStatus.value}}"
+            }
+        ],
+        "actions": [],
+        "basicPlus": []
+    },
+    "detailView": [
+        {
+            "label": "Trouble Status",
+            "displayType": "state",
+            "state": {
+                "label": "{{troubleStatus.value}}"
+            }
+        }
+    ],
+    "automation": {
+        "conditions": [
+            {
+                "label": "Trouble Status:",
+                "displayType": "list",
+                "list": {
+                    "alternatives": [
+                        {
+                            "key": "fault",
+                            "value": "Fault",
+                            "type": "active"
+                        },
+                        {
+                            "key": "tamper",
+                            "value": "Tamper",
+                            "type": "active"
+                        },
+                        {
+                            "key": "restore",
+                            "value": "No Trouble",
+                            "type": "active"
+                        }
+                    ]
+                }
+            }
+
+        ],
+        "actions": []
+    },
+    "id": "pizzafiber16443.troubleStatus",
+    "version": 1
+}

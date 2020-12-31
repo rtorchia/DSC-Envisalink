@@ -1,0 +1,26 @@
+{
+    "dashboard": {
+        "states": [
+            {
+                "label": "{{generalStatus.value}}"
+            }
+        ],
+        "actions": [],
+        "basicPlus": []
+    },
+    "detailView": [
+        {
+            "label": "Status",
+            "displayType": "state",
+            "state": {
+                "label": "{{generalStatus.value}}"
+            }
+        }
+    ],
+    "automation": {
+        "conditions": [],
+        "actions": []
+    },
+    "id": "pizzafiber16443.generalStatus",
+    "version": 1
+}

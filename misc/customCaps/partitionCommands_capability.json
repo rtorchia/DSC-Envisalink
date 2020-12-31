@@ -1,0 +1,210 @@
+{
+    "dashboard": {
+        "states": [
+            {
+                "label": "{{partitionCommand.value}}"
+            }
+        ],
+        "actions": [],
+        "basicPlus": []
+    },
+    "detailView": [
+        {
+            "label": "Partition Commands:",
+            "displayType": "list",
+            "list": {
+                "command": {
+                    "name": "sendPartitionCommand",
+                    "alternatives": [
+                        {
+                            "key": "away",
+                            "value": "Arm Away",
+                            "type": "active"
+                        },
+                        {
+                            "key": "stay",
+                            "value": "Arm Stay",
+                            "type": "active"
+                        },
+                        {
+                            "key": "disarm",
+                            "value": "Disarm",
+                            "type": "active"
+                        },
+                        {
+                            "key": "instant",
+                            "value": "Arm Instant",
+                            "type": "active"
+                        },
+                        {
+                            "key": "night",
+                            "value": "Arm Night",
+                            "type": "active"
+                        },
+                        {
+                            "key": "bypassoff",
+                            "value": "Bypass Off",
+                            "type": "active"
+                        },
+                        {
+                            "key": "autobypass",
+                            "value": "Bypass",
+                            "type": "active"
+                        },
+                        {
+                            "key": "keyfire",
+                            "value": "Key Fire",
+                            "type": "active"
+                        },
+                        {
+                            "key": "Keyaux",
+                            "value": "Key Aux",
+                            "type": "active"
+                        },
+                        {
+                            "key": "keypanic",
+                            "value": "Key Panic",
+                            "type": "active"
+                        },
+                        {
+                            "key": "reset",
+                            "value": "Reset",
+                            "type": "active"
+                        },
+                        {
+                            "key": "chime",
+                            "value": "Chime",
+                            "type": "active"
+                        }
+                    ]
+                },
+                "state": {
+                    "value": "partitionCommand.value",
+                    "alternatives": [
+                        {
+                            "key": "alarm",
+                            "value": "Alarm",
+                            "type": "active"
+                        },
+                        {
+                            "key": "away",
+                            "value": "Armed Away",
+                            "type": "active"
+                        },
+                        {
+                            "key": "disarm",
+                            "value": "Disarmed",
+                            "type": "active"
+                        },
+                        {
+                            "key": "duress",
+                            "value": "Duress",
+                            "type": "active"
+                        },
+                        {
+                            "key": "entrydelay",
+                            "value": "Entry Delay",
+                            "type": "active"
+                        },
+                        {
+                            "key": "exitdelay",
+                            "value": "Exit Delay",
+                            "type": "active"
+                        },
+                        {
+                            "key": "ready",
+                            "value": "Ready",
+                            "type": "active"
+                        },
+                        {
+                            "key": "forceready",
+                            "value": "Ready - F",
+                            "type": "active"
+                        },
+                        {
+                            "key": "stay",
+                            "value": "Armed Stay",
+                            "type": "active"
+                        },
+                        {
+                            "key": "instantaway",
+                            "value": "Armed Instant Away",
+                            "type": "active"
+                        },
+                        {
+                            "key": "instantstay",
+                            "value": "Armed Instant Stay",
+                            "type": "active"
+                        },
+                        {
+                            "key": "chime",
+                            "value": "Sending Chime",
+                            "type": "active"
+                        },
+                        {
+                            "key": "bypass",
+                            "value": "Sending Bypass",
+                            "type": "active"
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "automation": {
+        "conditions": [
+            {
+                "label": "Partition Commands:",
+                "displayType": "list",
+                "list": {
+                    "alternatives": [
+                        {
+                            "key": "away",
+                            "value": "Arm Away",
+                            "type": "active"
+                        },
+                        {
+                            "key": "stay",
+                            "value": "Arm Stay",
+                            "type": "active"
+                        },
+                        {
+                            "key": "disarmed",
+                            "value": "Disarmed",
+                            "type": "active"
+                        }
+                    ]
+                }
+            }
+        ],
+        "actions": [
+            {
+                "label": "Partition Commands:",
+                "displayType": "list",
+                "list": {
+                    "command": "sendPartitionCommand",
+                    "alternatives": [
+                        {
+                            "key": "away",
+                            "value": "Arm Away",
+                            "type": "active"
+                        },
+                        {
+                            "key": "stay",
+                            "value": "Arm Stay",
+                            "type": "active"
+                        },
+                        {
+                            "key": "disarmed",
+                            "value": "Disarmed",
+                            "type": "active"
+                        }
+                    ]
+                }
+            }
+
+        ]
+    },
+    "id": "pizzafiber16443.partitionCommands",
+    "version": 1
+}

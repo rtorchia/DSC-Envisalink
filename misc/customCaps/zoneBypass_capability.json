@@ -1,0 +1,74 @@
+{
+    "dashboard": {
+        "states": [
+            {
+                "label": "{{zoneBypass.value}}"
+            }
+        ],
+        "actions": [],
+        "basicPlus": []
+    },
+    "detailView": [
+        {
+            "label": "Zone Bypass Status",
+            "displayType": "toggleSwitch",
+            "toggleSwitch": {
+                "command": {
+                    "name":"setZoneBypass",
+                    "on": "Bypassed",
+                    "off": "Enabled"
+                },
+                "state": {
+                    "value": "zoneBypass.value",
+                    "on": "Bypassed",
+                    "off": "Enabled"
+                }
+            }
+        }
+    ],
+    "automation": {
+        "conditions": [
+            {
+                "label": "Zone Bypass Status",
+                "displayType": "list",
+                "list": {
+                    "alternatives": [
+                        {
+                            "key": "on",
+                            "value":"Bypass",
+                            "type":"active"
+                        },
+                        {
+                            "key":"off",
+                            "value":"Enabled",
+                            "type":"inactive"
+                        }
+                    ]
+                }
+            }
+        ],
+        "actions":[
+            {
+                "label": "Zone Bypass Status",
+                "displayType": "list",
+                "list": {
+                    "command": "setZoneBypass",
+                    "alternatives": [
+                        {
+                            "key": "on",
+                            "value":"Bypass",
+                            "type":"active"
+                        },
+                        {
+                            "key":"off",
+                            "value":"Enabled",
+                            "type":"inactive"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "id": "pizzafiber16443.zoneBypass",
+    "version": 1
+}

@@ -1,0 +1,119 @@
+{
+    "mnmn": "SmartThingsCommunity",
+    "vid": "4e2c95c3-2e22-3f94-b97f-cd1da6ef3f62",
+    "type": "dth",
+    "dpInfo": null,
+    "iconUrl": null,
+    "dashboard": {
+        "states": [
+            {
+                "component": "main",
+                "capability": "switch",
+                "version": 1,
+                "values": [],
+                "visibleCondition": null
+            },
+            {
+                "component": "main",
+                "capability": "pizzafiber16443.partitionStatus",
+                "version": 1,
+                "values": [],
+                "visibleCondition": null
+            }
+        ],
+        "actions": [
+            {
+                "component": "main",
+                "capability": "switch",
+                "version": 1,
+                "values": [],
+                "visibleCondition": null
+            },
+            {
+                "component": "main",
+                "capability": "pizzafiber16443.partitionStatus",
+                "version": 1,
+                "values": [],
+                "visibleCondition": null
+            }
+        ]
+    },
+    "detailView": [
+        {
+            "component": "main",
+            "capability": "switch",
+            "version": 1,
+            "values": [],
+            "visibleCondition": null
+        },
+        {
+            "component": "main",
+            "capability": "pizzafiber16443.partitionStatus",
+            "version": 1,
+            "values": [],
+            "visibleCondition": null
+        },
+        {
+            "component": "main",
+            "capability": "pizzafiber16443.partitionCommands",
+            "version": 1,
+            "values": [],
+            "visibleCondition": null
+        }
+        {
+            "component": "main",
+            "capability": "pizzafiber16443.troubleStatus",
+            "version": 1,
+            "values": [],
+            "visibleCondition": null
+        }
+    ],
+    "automation": {
+        "conditions": [
+            {
+                "component": "main",
+                "capability": "switch",
+                "version": 1,
+                "values": [],
+                "visibleCondition": null
+            },
+            {
+                "component": "main",
+                "capability": "pizzafiber16443.partitionStatus",
+                "version": 1,
+                "values": [],
+                "visibleCondition": null
+            },
+            {
+                "component": "main",
+                "capability": "pizzafiber16443.partitionCommands",
+                "version": 1,
+                "values": [],
+                "visibleCondition": null
+            }
+        ],
+        "actions": [
+            {
+                "component": "main",
+                "capability": "switch",
+                "version": 1,
+                "values": [],
+                "visibleCondition": null
+            },
+            {
+                "component": "main",
+                "capability": "pizzafiber16443.partitionStatus",
+                "version": 1,
+                "values": [],
+                "visibleCondition": null
+            },
+            {
+                "component": "main",
+                "capability": "pizzafiber16443.partitionCommands",
+                "version": 1,
+                "values": [],
+                "visibleCondition": null
+            }
+        ]
+    }
+}
