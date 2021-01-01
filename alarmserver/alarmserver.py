@@ -785,7 +785,7 @@ class ProxyChannel(asynchat.async_chat):
         self.set_terminator(b"\r\n")
         self._buffer = []
         self._server = server
-        self._clientMD5 = hashlib.md5(str(addr)).hexdigest()
+        self._clientMD5 = hashlib.md5(str(addr).encode("ASCII")).hexdigest()
         self._straddr = str(addr)
         self._proxypass = proxypass
         self._authenticated = False
@@ -798,8 +798,8 @@ class ProxyChannel(asynchat.async_chat):
 
     def found_terminator(self):
         line = "".join(self._buffer)
-        self._buffer = []
         self.handle_line(line)
+        self._buffer = []
 
     def handle_line(self, line):
         alarmserver_logger("PROXY REQ < "+line)
