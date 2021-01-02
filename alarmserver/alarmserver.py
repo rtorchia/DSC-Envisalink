@@ -8,7 +8,7 @@
 ## Smartthings away/stay mode by jordan@xeron.cc
 ##
 ## This code is under the terms of the GPL v3 license.
-
+## ver: 2020-12-09
 
 import asyncore, asynchat
 import configparser
@@ -77,7 +77,7 @@ def send_notification(config, message):
             "message": str(message),
             }), { "Content-type": "application/x-www-form-urlencoded" })
 
-def convert_bstr(string, type = 0):
+def convert_bstr(string, type = ""):
     if type == "":
         return string
     if type == "encoder":
@@ -284,8 +284,9 @@ class EnvisalinkClient(asynchat.async_chat):
         # Create the socket and connect to the server
         if reconnect == True:
             alarmserver_logger("Connection failed, retrying in " + str(self._retrydelay) + " seconds")
-            for i in range(0, self._retrydelay):
-                time.sleep(1)
+            time.sleep(self._retrydelay)
+            #for i in range(0, self._retrydelay):
+            #    time.sleep(1)
 
         self.create_socket()
         try:
@@ -777,7 +778,13 @@ class AlarmServer(asyncore.dispatcher):
                 channel.pushstatus(404, "Not found")
                 channel.push("Content-type: text/html\r\n")
                 channel.push("\r\n")
-
+        
+    def shutdown(self, status):
+        try:
+            self.socket.shutdown(status)
+        except socket.error:
+            alarmserver_logger("Error in closing socket")
+            
 class ProxyChannel(asynchat.async_chat):
     def __init__(self, server, proxypass, sock, addr):
         asynchat.async_chat.__init__(self, sock)
@@ -859,7 +866,12 @@ class EnvisalinkProxy(asyncore.dispatcher):
             alarmserver_logger("Incoming proxy connection from %s" % repr(addr))
             handler = ProxyChannel(server, self._config.ENVISALINKPROXYPASS, sock, addr)
 
-
+def shutdown_server(wserver):
+    alarmserver_logger("Shutting down server.")
+    wserver.shutdown(socket.SHUT_RDWR) 
+    wserver.close()
+    sys.exit()
+    
 def main(argv):
     try:
       opts, args = getopt.getopt(argv, "hc:", ["help", "config="])
@@ -873,7 +885,7 @@ def main(argv):
         elif opt in ("-c", "--config"):
             global conffile
             conffile = arg
-
+    
 def usage():
     print(("Usage: " + sys.argv[0] + " -c <file>"))
 
@@ -920,6 +932,8 @@ if __name__=="__main__":
             while True:
                 asyncore.loop(timeout=2, count=1)
                 # insert scheduling code here.
+            else:
+                shutdown_server(server)
         except KeyboardInterrupt:
             print("Crtl+C pressed.")
             alarmserver_logger("Server interrupted by Ctrl+C.")
@@ -928,9 +942,4 @@ if __name__=="__main__":
             shutdown_server(server)
     else:
         print("Could not find configuration file %s" % conffile)
-
-def shutdown_server(server):
-    alarmserver_logger("Shutting down server.")
-    server.shutdown(socket.SHUT_RDWR) 
-    server.close()
-    sys.exit()
+        sys.exit()
