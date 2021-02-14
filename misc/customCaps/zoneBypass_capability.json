@@ -2,7 +2,17 @@
     "dashboard": {
         "states": [
             {
-                "label": "{{zoneBypass.value}}"
+                "label": "{{zoneBypass.value}}",
+                "alternatives": [
+                    {
+                        "key": "on",
+                        "value": "Bypassed"
+                    },
+                    {
+                        "key": "off",
+                        "value": "Enabled"
+                    }
+                ]
             }
         ],
         "actions": [],
@@ -15,13 +25,26 @@
             "toggleSwitch": {
                 "command": {
                     "name":"setZoneBypass",
-                    "on": "Bypassed",
-                    "off": "Enabled"
+                    "on": "on",
+                    "off": "off"
                 },
                 "state": {
                     "value": "zoneBypass.value",
-                    "on": "Bypassed",
-                    "off": "Enabled"
+                    "on": "on",
+                    "off": "off",
+                    "label": "{{zoneBypass.value}}",
+                    "alternatives": [
+                        {
+                            "key": "on",
+                            "value": "Bypassed",
+                            "type": "active"
+                        },
+                        {
+                            "key": "off",
+                            "value": "Enabled",
+                            "type": "inactive"
+                        }
+                    ]
                 }
             }
         }
@@ -32,6 +55,7 @@
                 "label": "Zone Bypass Status",
                 "displayType": "list",
                 "list": {
+                    "value": "zoneBypass.value",
                     "alternatives": [
                         {
                             "key": "on",
@@ -52,6 +76,7 @@
                 "label": "Zone Bypass Status",
                 "displayType": "list",
                 "list": {
+                    "value": "zoneBypass.value",
                     "command": "setZoneBypass",
                     "alternatives": [
                         {

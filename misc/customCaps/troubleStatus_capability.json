@@ -2,7 +2,24 @@
     "dashboard": {
         "states": [
             {
-                "label": "{{troubleStatus.value}}"
+                "label": "{{troubleStatus.value}}",
+                "alternatives": [
+                    {
+                        "key": "fault",
+                        "value": "Fault",
+                        "type": "active"
+                    },
+                    {
+                        "key": "tamper",
+                        "value": "Tamper",
+                        "type": "active"
+                    },
+                    {
+                        "key": "restore",
+                        "value": "No Trouble",
+                        "type": "inactive"
+                    }
+                ]
             }
         ],
         "actions": [],
@@ -13,16 +30,35 @@
             "label": "Trouble Status",
             "displayType": "state",
             "state": {
-                "label": "{{troubleStatus.value}}"
+                "value": "troubleStatus.value",
+                "label": "{{troubleStatus.value}}",
+                "alternatives": [
+                    {
+                        "key": "fault",
+                        "value": "Fault",
+                        "type": "active"
+                    },
+                    {
+                        "key": "tamper",
+                        "value": "Tamper",
+                        "type": "active"
+                    },
+                    {
+                        "key": "restore",
+                        "value": "No Trouble",
+                        "type": "inactive"
+                    }
+                ]
             }
         }
     ],
     "automation": {
         "conditions": [
             {
-                "label": "Trouble Status:",
+                "label": "Trouble Status",
                 "displayType": "list",
                 "list": {
+                    "value": "troubleStatus.value",
                     "alternatives": [
                         {
                             "key": "fault",
@@ -37,7 +73,7 @@
                         {
                             "key": "restore",
                             "value": "No Trouble",
-                            "type": "active"
+                            "type": "inactive"
                         }
                     ]
                 }
