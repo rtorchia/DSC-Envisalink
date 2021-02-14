@@ -30,7 +30,7 @@ This integration is mostly complete and working, but some items do not work as S
 
 ### SmartThings Setup
 
-1. From the SmartThings Grovvy IDE setup github integration.
+1. From the SmartThings Grovvy IDE setup github integration, using your GitHub credentials.
 
 2. Add a new github repository from the settings, with _rtorchia_ as owner, _DSC-Envisalink_ as name, and _master_ as branch.
 
