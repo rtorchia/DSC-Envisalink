@@ -8,29 +8,29 @@
 
 metadata {
   definition (
-    name: "DSC Zone Motion",
-    author: "Ralph Torchia",
+    name: 'DSC Zone Motion',
+    author: 'Ralph Torchia',
     namespace: 'rtorchia',
-    mnmn: "SmartThingsCommunity",
-    vid: "621df660-ac84-3683-b76c-02df10c8bd06"
+    mnmn: 'SmartThingsCommunity',
+    vid: 'fb65f429-8360-3f4c-bd85-2358220ff2f4'
   )
 
   {
-    capability "Motion Sensor"
-    capability "Sensor"
-    capability "Alarm"
-    capability "pizzafiber16443.zoneBypass"
-    capability "pizzafiber16443.troubleStatus"
+    capability 'Motion Sensor'
+    capability 'Sensor'
+    capability 'Alarm'
+    capability 'pizzafiber16443.zoneBypass'
+    capability 'pizzafiber16443.troubleStatus'
   }
   
   tiles {}
 }
 
 // handle commands
-def setZoneBypass() {
+def setZoneBypass(String evt) {
   def zone = device.deviceNetworkId.minus('dsczone')
   parent.sendUrl("bypass?zone=${zone}")
-  sendEvent (name: "zoneBypass", value: "on")
+  sendEvent (name: "zoneBypass", value: "${evt}")
 }
 
 def zone(String state) {
@@ -38,25 +38,18 @@ def zone(String state) {
   // zone will be a number for the zone
   log.debug "Zone: ${state}"
 
-  //def troubleList = ['fault','tamper','restore']
-  def troubleMap = [
-    'restore': 'No Trouble',
-    'tamper': 'Tamper',
-    'fault': 'Fault'
-  ]
+  def troubleList = ['fault','tamper','restore']
 
   def bypassList = ['on','off']
 
   def alarmMap = [
-    'alarm': "both",
-    'noalarm': "off"
+    'alarm': 'both',
+    'noalarm': 'off'
   ]
 
-  if (troubleMap.containsKey(state)) {
-    sendEvent (name: "trouble", value: "${state}")
-    sendEvent (name: "troubleStatus", value: "${troubleMap[state]}")
+  if (troubleList.contains(state)) {
+    sendEvent (name: "troubleStatus", value: "${state}")
   } else if (bypassList.contains(state)) {
-    sendEvent (name: "bypass", value: "${state}")
     sendEvent (name: "zoneBypass", value: "${state}")
   } else {
     // Send actual alarm state, if we have one
@@ -69,10 +62,10 @@ def zone(String state) {
     // Alarming isn't a valid option for this capability, but we map this here anyway, so you can more easily tell which device
     // is alarming from the "things" page.
     def motionMap = [
-     'open':"active",
-     'closed':"inactive",
-     'noalarm':"inactive",
-     'alarm':"alarm"
+     'open':'active',
+     'closed':'inactive',
+     'noalarm':'inactive',
+     'alarm':'alarm'
     ]
 
     sendEvent (name: "motion", value: "${motionMap[state]}")
@@ -103,7 +96,7 @@ def strobe() {
 private initialize() {
   log.trace "Executing initialize()"
   //set default values
-  sendEvent (name: "troubleStatus", value: "No Trouble")
+  sendEvent (name: "troubleStatus", value: "restore")
   sendEvent (name: "zoneBypass", value: "off")
   off()
 }
