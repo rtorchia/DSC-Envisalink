@@ -8,7 +8,7 @@
 ## Smartthings away/stay mode by jordan@xeron.cc
 ##
 ## This code is under the terms of the GPL v3 license.
-## ver: 2020-12-09
+## ver: 2021-01-30
 
 import asyncore, asynchat
 import configparser
@@ -38,6 +38,7 @@ MAXZONES=64
 MAXALARMUSERS=95
 EVENTCODES=[510,511,601,602,603,604,605,606,609,610,616,620,621,622,623,624,625,626,650,651,652,653,654,655,656,657,663,664,840,841]
 CONNECTEDCLIENTS={}
+TIMETOWAIT=2
 
 def dict_merge(a, b):
     c = a.copy()
@@ -72,9 +73,9 @@ def send_notification(config, message):
         conn = http.client.HTTPSConnection("api.pushover.net:443")
         conn.request("POST", "/1/messages.json",
             urllib.parse.urlencode({
-            "token": "qo0nwMNdX56KJl0Avd4NHE2onO4Xff",
-            "user": config.PUSHOVER_USERTOKEN,
-            "message": str(message),
+                "token": "qo0nwMNdX56KJl0Avd4NHE2onO4Xff",
+                "user": config.PUSHOVER_USERTOKEN,
+                "message": str(message)
             }), { "Content-type": "application/x-www-form-urlencoded" })
 
 def convert_bstr(string, type = ""):
@@ -187,13 +188,25 @@ class DeviceSetup():
         myURL = config.CALLBACKURL_BASE + "/" + config.CALLBACKURL_APP_ID + "/installzones" + "?access_token=" + config.CALLBACKURL_ACCESS_TOKEN
         if (config.LOGURLREQUESTS):
           alarmserver_logger("myURL: %s" % myURL)
-        requests.post(myURL, data=zonejson, headers=headers)
+        
+        try:
+            requests.post(myURL, data=zonejson, headers=headers, timeout=TIMETOWAIT)
+        except requests.Timeout:
+            alarmserver_logger("Connection timeout for myURL: %s for installing partitions" % myURL)
+        except:
+            alarmserver_logger("Connection error for myURL: %s for installing zones" % myURL)
 
         # create partition devices
         myURL = config.CALLBACKURL_BASE + "/" + config.CALLBACKURL_APP_ID + "/installpartitions" + "?access_token=" + config.CALLBACKURL_ACCESS_TOKEN
         if (config.LOGURLREQUESTS):
           alarmserver_logger("myURL: %s" % myURL)
-        requests.post(myURL, data=partitionjson, headers=headers)
+        
+        try:
+            requests.post(myURL, data=partitionjson, headers=headers, timeout=TIMETOWAIT)
+        except requests.Timeout:
+            alarmserver_logger("Connection timeout for myURL: %s for installing partitions" % myURL)
+        except:
+            alarmserver_logger("Connection error for myURL: %s for installing partitions" % myURL)
 
 class HTTPChannel(asynchat.async_chat):
     def __init__(self, server, sock, addr):
@@ -224,7 +237,7 @@ class HTTPChannel(asynchat.async_chat):
                 self.set_terminator(b"\r\n")
                 self.server.handle_request(
                     self, request[0], request[1], self.header
-                    )
+                )
                 self.close_when_done()
             self.data = ""
         else:
@@ -256,7 +269,7 @@ class HTTPChannel(asynchat.async_chat):
         elif extension == ".css":
             self.push(b"Content-type: text/css\r\n")
         self.push(b"\r\n")
-        self.push_with_producer(push_FileProducer(sys.path[0] + os.sep + "ext" + os.sep + file))
+        self.push_with_producer(PushFileProducer(sys.path[0] + os.sep + "ext" + os.sep + file))
 
 class EnvisalinkClient(asynchat.async_chat):
     def __init__(self, config):
@@ -334,6 +347,7 @@ class EnvisalinkClient(asynchat.async_chat):
         if input != "":
             for client in CONNECTEDCLIENTS:
                 CONNECTEDCLIENTS[client].send_command(input, False)
+            
             try:
                 code=int(input[:3])
                 parameters=input[3:][:-2]
@@ -343,6 +357,7 @@ class EnvisalinkClient(asynchat.async_chat):
                 if code == 502:
                     errcode = int(input[3:6])
                     alarmserver_logger(" => " + message +" = " + evl_ErrorCodes[errcode])
+                
                 try:
                     handler = "handle_%s" % evl_ResponseTypes[code]["handler"]
                 except KeyError:
@@ -376,6 +391,7 @@ class EnvisalinkClient(asynchat.async_chat):
                                 usercode = int(parameters[1:5])
                             except:
                                 usercode = 0
+                            
                             if int(usercode) in self._config.ALARMUSERNAMES:
                                 if self._config.ALARMUSERNAMES[int(usercode)]!=False:
                                     alarmusername = self._config.ALARMUSERNAMES[int(usercode)]
@@ -383,6 +399,7 @@ class EnvisalinkClient(asynchat.async_chat):
                                     # Didn't find a username, use the code instead
                                     alarmusername = usercode
                                 return event["name"].format(str(self._config.PARTITIONNAMES[int(parameters[0])]), str(alarmusername))
+                        
                         elif len(parameters) == 2:
                             # We have an arm mode instead, get it's friendly name
                             armmode = evl_ArmModes[int(parameters[1])]
@@ -391,9 +408,11 @@ class EnvisalinkClient(asynchat.async_chat):
                             return event["name"].format(str(self._config.PARTITIONNAMES[int(parameters)]))
                         else:
                             return event["name"].format(str(self._config.PARTITIONNAMES[int(parameters[0])]), int(parameters[1:]))
+                
                 elif event["type"] == "zone":
                     if int(parameters) in self._config.ZONENAMES and self._config.ZONENAMES[int(parameters)]!="":
                         return event["name"].format(str(self._config.ZONENAMES[int(parameters)]))
+        
         return event["name"].format(str(parameters))
 
     # envisalink event handlers, some events are unhandeled.
@@ -417,11 +436,13 @@ class EnvisalinkClient(asynchat.async_chat):
             if event["type"] in ("partition", "zone"):
                 if event["type"] == "zone":
                     if int(parameters) in self._config.ZONENAMES:
+                        
                         if self._config.ZONENAMES[int(parameters)]!="":
                             if not int(parameters) in ALARMSTATE[event["type"]]:
                                 ALARMSTATE[event["type"]][int(parameters)] = {"name" : self._config.ZONENAMES[int(parameters)]}
                         else:
                             if not int(parameters) in ALARMSTATE[event["type"]]: ALARMSTATE[event["type"]][int(parameters)] = {}
+                
                 elif event["type"] == "partition":
                     if int(parameters[0]) in self._config.PARTITIONNAMES:
                         if self._config.PARTITIONNAMES[int(parameters[0])]!="":
@@ -443,11 +464,14 @@ class EnvisalinkClient(asynchat.async_chat):
 
             if len(ALARMSTATE[event["type"]][int(parameters)]["lastevents"]) > self._config.MAXEVENTS:
                 ALARMSTATE[event["type"]][int(parameters)]["lastevents"].pop(0)
+            
             ALARMSTATE[event["type"]][int(parameters)]["lastevents"].append({"datetime" : str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")), "message" : message})
 
             if len(ALARMSTATE[event["type"]]["lastevents"]) > self._config.MAXALLEVENTS:
                 ALARMSTATE[event["type"]]["lastevents"].pop(0)
+            
             ALARMSTATE[event["type"]]["lastevents"].append({"datetime" : str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")), "message" : message})
+        
         self.callbackurl_event(code, parameters, event, message)
 
     def handle_zone(self, code, parameters, event, message):
@@ -459,172 +483,185 @@ class EnvisalinkClient(asynchat.async_chat):
     def callbackurl_event(self, code, parameters, event, message):
         # Determine what events we are sending to smartthings then send if we match
         if code in EVENTCODES:
-           # Check for events with no type by code instead
-           if code == 620:
-             update = {
-               "type": "partition",
-               "value": "1",
-               "status": "duress"
-             }
-           elif code == 616:
-             update = {
-               "type": "bypass",
-               "status": "bypass",
-               "parameters": {}
-             }
+            
+            # Check for events with no type by code instead
+            if code == 620:
+                update = {
+                    "type": "partition",
+                    "value": "1",
+                    "status": "duress"
+                }
+            
+            elif code == 616:
+                update = {
+                    "type": "bypass",
+                    "status": "bypass",
+                    "parameters": {}
+                }
 
-             begin=0
-             end=2
-             count=8
-             binary = bin(int(str(parameters[begin:end]), 16))[2:].zfill(8)
+                begin=0
+                end=2
+                count=8
+                binary = bin(int(str(parameters[begin:end]), 16))[2:].zfill(8)
 
-             for zone in range(1, MAXZONES+1):
-               if count < 1:
-                 count = 8
-                 begin = begin + 2
-                 end = end + 2
-                 binary = bin(int(str(parameters[begin:end]), 16))[2:].zfill(8)
-               count = count - 1
-               # Is our zone setup with a custom name, if so we care about it
-               if zone in self._config.ZONENAMES and self._config.ZONENAMES[zone]!="":
-                 value = "on" if (binary[count] == "1") else "off"
-                 update["parameters"][str(zone)]=value
-           elif code in [510,511]:
-             codeMap = {
-               510:"led",
-               511:"ledflash",
-             }
+                for zone in range(1, MAXZONES+1):
+                    if count < 1:
+                        count = 8
+                        begin = begin + 2
+                        end = end + 2
+                        binary = bin(int(str(parameters[begin:end]), 16))[2:].zfill(8)
+                    count = count - 1
+                    # Is our zone setup with a custom name, if so we care about it
+                    if zone in self._config.ZONENAMES and self._config.ZONENAMES[zone]!="":
+                        value = "on" if (binary[count] == "1") else "off"
+                        update["parameters"][str(zone)]=value
+            
+            elif code in [510,511]:
+                codeMap = {
+                    510:"led",
+                    511:"ledflash"
+                }
 
-             ledMap = {
-               0:"backlight",
-               1:"fire",
-               2:"program",
-               3:"trouble",
-               4:"bypass",
-               5:"memory",
-               6:"armed",
-               7:"ready"
-             }
+                ledMap = {
+                    0:"backlight",
+                    1:"fire",
+                    2:"program",
+                    3:"trouble",
+                    4:"bypass",
+                    5:"memory",
+                    6:"armed",
+                    7:"ready"
+                }
 
-             update = {
-               "type": "partition",
-               "value": "1",
-               "status": codeMap[code],
-               "parameters": {}
-             }
+                update = {
+                    "type": "partition",
+                    "value": "1",
+                    "status": codeMap[code],
+                    "parameters": {}
+                }
 
-             binary = bin(int(str(parameters), 16))[2:].zfill(8)
+                binary = bin(int(str(parameters), 16))[2:].zfill(8)
 
-             for i in range(0, 8):
-               value = "on" if (binary[i] == "1") else "off"
-               update["parameters"][ledMap[i]]=value
-           elif event["type"] == "system":
-             codeMap = {
-               621:"keyfirealarm",
-               622:"keyfirerestore",
-               623:"keyauxalarm",
-               624:"keyauxrestore",
-               625:"keypanicalarm",
-               626:"keypanicrestore",
-             }
+                for i in range(0, 8):
+                    value = "on" if (binary[i] == "1") else "off"
+                    update["parameters"][ledMap[i]]=value
+            
+            elif event["type"] == "system":
+                codeMap = {
+                    621:"keyfirealarm",
+                    622:"keyfirerestore",
+                    623:"keyauxalarm",
+                    624:"keyauxrestore",
+                    625:"keypanicalarm",
+                    626:"keypanicrestore",
+                }
 
-             update = {
-               "type": "partition",
-               "value": "1",
-               "status": codeMap[code],
-             }
-           elif event["type"] == "partition":
-             # Is our partition setup with a custom name?
-             if int(parameters[0]) in self._config.PARTITIONNAMES and self._config.PARTITIONNAMES[int(parameters[0])]!="":
-               if code == 655:
-                 self.send_command("071", "1*1#")
+                update = {
+                    "type": "partition",
+                    "value": "1",
+                    "status": codeMap[code],
+                }
+           
+            elif event["type"] == "partition":
+                # Is our partition setup with a custom name?
+                if int(parameters[0]) in self._config.PARTITIONNAMES and self._config.PARTITIONNAMES[int(parameters[0])]!="":
+                    if code == 655:
+                        self.send_command("071", "1*1#")
 
-               codeMap = {
-                 650:"ready",
-                 651:"notready",
-                 653:"forceready",
-                 654:"alarm",
-                 655:"disarm",
-                 656:"exitdelay",
-                 657:"entrydelay",
-                 663:"chime",
-                 664:"nochime",
-                 701:"armed",
-                 702:"armed",
-                 840:"trouble",
-                 841:"restore",
-               }
+                    codeMap = {
+                        650:"ready",
+                        651:"notready",
+                        653:"forceready",
+                        654:"alarm",
+                        655:"disarm",
+                        656:"exitdelay",
+                        657:"entrydelay",
+                        663:"chime",
+                        664:"nochime",
+                        701:"armed",
+                        702:"armed",
+                        840:"trouble",
+                        841:"restore",
+                    }
 
-               update = {
-                 "type": "partition",
-                 "name": self._config.PARTITIONNAMES[int(parameters[0])],
-                 "value": str(int(parameters[0]))
-               }
+                    update = {
+                        "type": "partition",
+                        "name": self._config.PARTITIONNAMES[int(parameters[0])],
+                        "value": str(int(parameters[0]))
+                    }
 
-               if code == 652:
-                 if message.endswith("Zero Entry Away"):
-                   update["status"]="instantaway"
-                 elif message.endswith("Zero Entry Stay"):
-                   update["status"]="instantstay"
-                 elif message.endswith("Away"):
-                   update["status"]="away"
-                 elif message.endswith("Stay"):
-                   update["status"]="stay"
-                 else:
-                   update["status"]="armed"
-               else:
-                   update["status"]=codeMap[code]
-             else:
-               # We don't care about this partition
-               return
-           elif event["type"] == "zone":
-             # Is our zone setup with a custom name, if so we care about it
-             if int(parameters) in self._config.ZONENAMES and self._config.ZONENAMES[int(parameters)]!="":
-               codeMap = {
-                 601:"alarm",
-                 602:"noalarm",
-                 603:"tamper",
-                 604:"restore",
-                 605:"fault",
-                 606:"restore",
-                 609:"open",
-                 610:"closed",
-                 631:"smoke",
-                 632:"clear",
-               }
+                    if code == 652:
+                        if message.endswith("Zero Entry Away"):
+                            update["status"]="instantaway"
+                        elif message.endswith("Zero Entry Stay"):
+                            update["status"]="instantstay"
+                        elif message.endswith("Away"):
+                            update["status"]="away"
+                        elif message.endswith("Stay"):
+                            update["status"]="stay"
+                        else:
+                            update["status"]="armed"
+                    
+                    else:
+                        update["status"]=codeMap[code]
+                
+                else:
+                    # We don't care about this partition
+                    return
+            elif event["type"] == "zone":
+                # Is our zone setup with a custom name, if so we care about it
+                if int(parameters) in self._config.ZONENAMES and self._config.ZONENAMES[int(parameters)]!="":
+                    codeMap = {
+                        601:"alarm",
+                        602:"noalarm",
+                        603:"tamper",
+                        604:"restore",
+                        605:"fault",
+                        606:"restore",
+                        609:"open",
+                        610:"closed",
+                        631:"smoke",
+                        632:"clear",
+                    }
 
-               update = {
-                 "type": "zone",
-                 "name": self._config.ZONENAMES[int(parameters)],
-                 "value": str(int(parameters)),
-                 "status": codeMap[code]
-               }
-             else:
-               # We don't care about this zone
-               return
-           else:
-             # Unhandled event type..
-             return
+                    update = {
+                        "type": "zone",
+                        "name": self._config.ZONENAMES[int(parameters)],
+                        "value": str(int(parameters)),
+                        "status": codeMap[code]
+                    }
+                else:
+                    # We don't care about this zone
+                    return
+            else:
+                # Unhandled event type..
+                return
 
-           # If we made it here we should send to Smartthings
-           try:
-             # Note: I don't currently care about the return value, fire and forget right now
-             jsonupdate = json.dumps(update)
-             headers = {"content-type": "application/json"}
-             # send json update
-             myURL = config.CALLBACKURL_BASE + "/" + config.CALLBACKURL_APP_ID + "/update" + "?access_token=" + config.CALLBACKURL_ACCESS_TOKEN
-             if (config.LOGURLREQUESTS):
-               alarmserver_logger("myURL: %s" % myURL)
-             requests.post(myURL, data=jsonupdate, headers=headers)
+            # If we made it here we should send to Smartthings
+            try:
+                # Note: We don't currently care about the return value, fire and forget right now
+                jsonupdate = json.dumps(update)
+                headers = {"content-type": "application/json"}
+                # send json update
+                myURL = config.CALLBACKURL_BASE + "/" + config.CALLBACKURL_APP_ID + "/update" + "?access_token=" + config.CALLBACKURL_ACCESS_TOKEN
+                if (config.LOGURLREQUESTS):
+                    alarmserver_logger("myURL: %s" % myURL)
+                
+                try:
+                    requests.post(myURL, data=jsonupdate, headers=headers, timeout=TIMETOWAIT)
+                except requests.Timeout:
+                    alarmserver_logger("Connection timeout for myURL: %s for installing partitions" % myURL)
+                except:
+                    alarmserver_logger("Connection error for myURL: %s for update" % myURL)   
 
-             # print "myURL: ", myURL
-             # print "Exit code: ", r.status_code
-             # print "Response data: ", r.text
-             # time.sleep(0.5)
-           except:
-             print(sys.exc_info()[0])
+                # print "myURL: ", myURL
+                # print "Exit code: ", r.status_code
+                # print "Response data: ", r.text
+                # time.sleep(0.5)
+            except:
+                print(sys.exc_info()[0])
 
-class push_FileProducer:
+class PushFileProducer:
     # a producer which reads data from a file object
     def __init__(self, file):
         self.file = open(file, "rb")
@@ -716,16 +753,20 @@ class AlarmServer(asyncore.dispatcher):
                 zones = str(query_array["zone"][0]).split(",")
                 for zone in zones:
                     if str(zone) == "0":
-                      partition = part
+                        partition = part
                     else:
-                      partition = str(self._config.ZONES[int(zone)]["partition"])
-                    if len(zone) == 1: zone = "0" + zone
+                        partition = str(self._config.ZONES[int(zone)]["partition"])
+                    
+                    if len(zone) == 1:
+                        zone = "0" + zone
+                    
                     alarmserver_logger("request to bypass zone %s on partition %s" % (zone, partition))
                     channel.pushok(json.dumps({"response" : "Request to bypass zone received"}))
                     self._envisalinkclient.send_command("071", partition + "*1" + str(zone) + "#")
                     time.sleep(2)
             except:
                 channel.pushok(json.dumps({"response" : "Request to bypass zone received but invalid zone given!"}))
+        
         elif query.path == "/api/alarm/panic":
             try:
                 type = str(query_array["type"][0])
@@ -734,6 +775,7 @@ class AlarmServer(asyncore.dispatcher):
                 self._envisalinkclient.send_command("060", str(type))
             except:
                 channel.pushok(json.dumps({"response" : "Request to panic received but invalid type given!"}))
+        
         elif query.path == "/api/alarm/reset":
             channel.pushok(json.dumps({"response" : "Request to reset sensors received"}))
             self._envisalinkclient.send_command("071", part + "*72#")
@@ -753,12 +795,18 @@ class AlarmServer(asyncore.dispatcher):
             self._envisalinkclient.send_command("040", part + alarmcode)
         elif query.path == "/api/config/eventtimeago":
             channel.pushok(json.dumps({"eventtimeago" : str(self._config.EVENTTIMEAGO)}))
+        elif query.path == "/api/setclock":
+            # clock format hhmmMMDDYY
+            # Note: it may take up to 4 minutes for this command to be reflected on all the keypads on the security system
+            channel.pushok(json.dumps({"response" : "Request to set clock"}))
+            self._envisalinkclient.send_command("010", part) 
         elif query.path == "/img/glyphicons-halflings.png":
             channel.pushfile("glyphicons-halflings.png")
         elif query.path == "/img/glyphicons-halflings-white.png":
             channel.pushfile("glyphicons-halflings-white.png")
         elif query.path == "/favicon.ico":
             channel.pushfile("favicon.ico")
+        
         else:
             if len(query.path.split("/")) == 2:
                 try:
@@ -864,39 +912,24 @@ class EnvisalinkProxy(asyncore.dispatcher):
         else:
             sock, addr = pair
             alarmserver_logger("Incoming proxy connection from %s" % repr(addr))
-            handler = ProxyChannel(server, self._config.ENVISALINKPROXYPASS, sock, addr)
+            #handler = ProxyChannel(server, self._config.ENVISALINKPROXYPASS, sock, addr)
+            ProxyChannel(server, self._config.ENVISALINKPROXYPASS, sock, addr)
 
-def shutdown_server(wserver):
+def shutdownServer(wserver):
     alarmserver_logger("Shutting down server.")
     wserver.shutdown(socket.SHUT_RDWR) 
     wserver.close()
     sys.exit()
-    
-def main(argv):
-    try:
-      opts, args = getopt.getopt(argv, "hc:", ["help", "config="])
-    except getopt.GetoptError:
-        usage()
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt in ("-h", "--help"):
-            usage()
-            sys.exit()
-        elif opt in ("-c", "--config"):
-            global conffile
-            conffile = arg
-    
-def usage():
-    print(("Usage: " + sys.argv[0] + " -c <file>"))
 
-if __name__=="__main__":
-    cfg_file="alarmserver.cfg"
-    main(sys.argv[1:])
-    
-    pathname = os.path.dirname(sys.argv[0])
-    scriptpath = os.path.abspath(pathname)
-    conffile = os.path.join(scriptpath,cfg_file)
-    
+
+def keyboardInterruption(server):
+    print("Crtl+C pressed.")
+    alarmserver_logger("Server interrupted by Ctrl+C.")
+    shutdownServer(server)    
+
+def mainSetup(conffile):
+    global server, config, outfile
+
     if os.path.exists(conffile):
         config = AlarmServerConfig(conffile)
         print(("Using configuration file %s" % conffile))
@@ -918,7 +951,10 @@ if __name__=="__main__":
         alarmserver_logger("and on a DSC PC1864 v4.6 + EVL-4")
         alarmserver_logger("====================================")
 
-        DeviceSetup(config)
+        try:
+            DeviceSetup(config)
+        except:
+            alarmserver_logger("Error installing and setting up devices.")
         
         try:
            server = AlarmServer(config)
@@ -926,20 +962,46 @@ if __name__=="__main__":
             alarmserver_logger("Shutting down server due to errors.")
             sys.exit()
 
-        proxy = EnvisalinkProxy(config, server)
+        #proxy = EnvisalinkProxy(config, server)
+        EnvisalinkProxy(config, server)
 
         try:
             while True:
                 asyncore.loop(timeout=2, count=1)
                 # insert scheduling code here.
             else:
-                shutdown_server(server)
+                shutdownServer(server)
         except KeyboardInterrupt:
-            print("Crtl+C pressed.")
-            alarmserver_logger("Server interrupted by Ctrl+C.")
-            shutdown_server(server)
+            keyboardInterruption(server)
         else:
-            shutdown_server(server)
+            shutdownServer(server)
     else:
         print("Could not find configuration file %s" % conffile)
         sys.exit()
+
+def main(argv):
+    try:
+        opts, args = getopt.getopt(argv, "hc:", ["help", "config="])
+    except getopt.GetoptError:
+        usage()
+        sys.exit(2)
+    
+    for opt, arg in opts:
+        if opt in ("-h", "--help"):
+            usage()
+            sys.exit()
+        elif opt in ("-c", "--config"):
+            mainSetup(arg)
+
+def usage():
+    print(("Usage: " + sys.argv[0] + " -c <file>"))
+
+if __name__=="__main__":
+    
+    main(sys.argv[1:])
+
+    cfg_file="alarmserver.cfg"
+    pathname = os.path.dirname(sys.argv[0])
+    scriptpath = os.path.abspath(pathname)
+    conffile = os.path.join(scriptpath,cfg_file)
+    mainSetup(conffile)
