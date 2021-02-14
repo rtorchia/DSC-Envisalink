@@ -3,26 +3,28 @@
  *
  *  Author: Ralph Torchia
  *  Original Code By: Jordan <jordan@xeron.cc>, Rob Fisher <robfish@att.net>, Carlos Santiago <carloss66@gmail.com>, JTT <aesystems@gmail.com>
- *  Date: 2020-10-29
+ *  Date: 2021-02-13
  */
 
 metadata {
   definition (
-    name: "DSC Away Panel",
-    author: "Ralph Torchia",
+    name: 'DSC Away Panel',
+    author: 'Ralph Torchia',
     namespace: 'rtorchia',
-    ocfDeviceType: "oic.d.securitypanel",
-    mnmn: "SmartThingsCommunity",
-    vid: "b5b2726f-6db4-3759-b10f-7b279b8724e1",
+    //ocfDeviceType: 'oic.d.securitypanel',
+    ocfDeviceType: 'oic.d.smartlock',
+    deviceTypeId: 'SecurityPanel',
+    mnmn: 'SmartThingsCommunity',
+    vid: 'fb4dd121-56ac-35dc-a835-e4b14960da35',
     cstHandler: true
   )
   
   {
-    capability "Switch"
-    capability "Refresh"
-    capability "pizzafiber16443.partitionStatus"
-    capability "pizzafiber16443.partitionCommands"
-    capability "Security System"
+    capability 'Switch'
+    capability 'pizzafiber16443.partitionStatus'
+    capability 'pizzafiber16443.partitionCommands'
+    capability 'Security System'
+    capability 'Refresh'
   }
 
   tiles {}
@@ -40,18 +42,16 @@ def partition(String evt, String partition, Map parameters) {
   def chimeList = ['chime','nochime']
 
   def troubleMap = [
-    'trouble':"detected",
-    'restore':"clear",
+    'trouble': 'detected',
+    'restore': 'clear',
   ]
   
-  def altState = ""
-  altState=getPrettyName().get(evt)
-  def switchStatus = device.currentState("switch").value
-  
   if (onList.contains(evt)) {
-    if (switchStatus == "off") { sendEvent (name: "switch", value: "on") }
+    sendEvent (name: "switch", value: "on")
+    sendEvent (name: "partitionStatus", value: "${evt}")
   } else if (!(chimeList.contains(evt) || troubleMap[evt] || evt.startsWith('led') || evt.startsWith('key'))) {
     sendEvent (name: "switch", value: "off")
+    sendEvent (name: "partitionStatus", value: "disarm")
   }
 
   if (troubleMap[evt]) {
@@ -73,29 +73,27 @@ def partition(String evt, String partition, Map parameters) {
     //sendEvent (name: "${name}", value: "${value}")
   } else {
     // Send final event
-    //sendEvent (name: "status", value: "${evt}")
-    sendEvent (name: "partitionStatus", value: "${altState}")
+    sendEvent (name: "partitionStatus", value: "${evt}")
     sendEvent (name: "partitionCommand", value: "Select command", descriptionText: "${evt}")
   }
 }
 
+def installed() { state.sendurl = true }
+
 //arm away = switch on
 def on() {
-  def switchStatus = device.currentState("switch").value
-  log.debug "Triggered on() for Armed (Away)"
-  if (switchStatus == "off") {
-    sendEvent (name: "switch", value: "on")
-    //sendEvent(name: "securitySystemStatus", value: "armedAway")
-    away()
-  }
+  log.debug "Triggered on() for arm away"
+  away()
 }
 
-def armAway(evt) { on() }
+def armAway(evt) {
+  log.debug "Triggered armAway()"
+  away()
+}
 
 //disarm = switch off
 def off() {
-  log.debug "Triggered off() for disarmed"
-  sendEvent (name: "switch", value: "off")
+  log.debug "Triggered off() for disarm"
   disarm()
 }
 
@@ -109,7 +107,12 @@ def away() {
 }
 
 def stay() {
-  parent.sendUrl("stayarm?part=${device.deviceNetworkId[-1]}")
+  if (state.sendurl==true) {
+    state.sendurl = false
+    log.debug "Triggered stay()"
+    parent.sendUrl("stayarm?part=${device.deviceNetworkId[-1]}")
+    state.sendurl = true
+  }
 }
 
 def autobypass() {
@@ -167,47 +170,23 @@ def togglechime() {
 }
 
 def setPartitionCommand(String evt) {
-  def altState = ""
-  altState=getPrettyName().get(evt)
-  
   log.debug "Processing command: ${evt}"
   
-  sendEvent (name: "partitionStatus", value: "${altState}")
+  sendEvent (name: "partitionStatus", value: "${evt}")
   sendEvent (name: "partitionCommand", value: "${evt}", descriptionText: "Command: ${evt}")
       
-  if (evt =="away") { away() }
-  else if (evt == "autobypass") { autobypass() }
-  else if (evt == "bypassoff") { bypassoff() }
-  else if (evt == "disarm") { disarm() }
-  else if (evt == "instant") { instant() }
-  else if (evt == "night") { night() }
-  else if (evt == "nokey") { nokey () }
-  else if (evt == "key") { key() }
-  else if (evt == "keyfire") { keyfire() }
-  else if (evt == "keyaux") { keyaux() }
-  else if (evt == "keypanic") { keypanic() }
-  else if (evt == "reset") { reset() }
-  else if (evt == "stay") { stay() }
-  else if (evt == "chime") { togglechime() }
+  if (evt =='away') { away() }
+  else if (evt == 'autobypass') { autobypass() }
+  else if (evt == 'bypassoff') { bypassoff() }
+  else if (evt == 'disarm') { disarm() }
+  else if (evt == 'instant') { instant() }
+  else if (evt == 'night') { night() }
+  else if (evt == 'nokey') { nokey () }
+  else if (evt == 'key') { key() }
+  else if (evt == 'keyfire') { keyfire() }
+  else if (evt == 'keyaux') { keyaux() }
+  else if (evt == 'keypanic') { keypanic() }
+  else if (evt == 'reset') { reset() }
+  else if (evt == 'stay') { stay() }
+  else if (evt == 'chime') { togglechime() }
 }
-
-def getPrettyName() {
-  return [
-    ready: "Ready",
-    forceready: "Force Ready",
-    notready: "Not Ready",
-    stay: "Armed Stay",
-    away: "Armed Away",
-    alarmcleared: "Alarm Cleared",
-    instant: "Armed Instant",
-    night: "Armed Night",
-    disarm: "Disarming",
-    exitdelay: "Exit Delay",
-    entrydelay: "Entry Delay",
-    chime: "Toggling Chime",
-    bypassoff: "Sending Bypass Off",
-    keyfire: "Sending Fire Alert",
-    keyaux: "Sending Aux Alert",
-    keypanic: "Sending Panic Alert"
-  ]
-}    
