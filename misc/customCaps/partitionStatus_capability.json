@@ -2,7 +2,88 @@
     "dashboard": {
         "states": [
             {
-                "label": "{{partitionStatus.value}}"
+                "label": "{{partitionStatus.value}}",
+                "alternatives": [
+                    {   
+                        "key": "ready",
+                        "value": "Ready",
+                        "type": "active"
+                    },
+                    {   
+                        "key": "forceready",
+                        "value": "Force Ready",
+                        "type": "active"
+                    },
+                    {   
+                        "key": "notready",
+                        "value": "Not Ready",
+                        "type": "inactive"
+                    },
+                    {   
+                        "key": "stay",
+                        "value": "Armed Stay",
+                        "type": "inactive"
+                    },
+                    {   "key": "away",
+                        "value": "Armed Away",
+                        "type": "inactive"
+                    },
+                    {   
+                        "key": "alarmcleared",
+                        "value": "Alarm Cleared",
+                        "type": "inactive"
+                    },
+                    {   
+                        "key": "instant",
+                        "value": "Armed Instant",
+                        "type": "inactive"
+                    },
+                    {   
+                        "key": "night",
+                        "value": "Armed Night",
+                        "type": "inactive"
+                    },
+                    {   
+                        "key": "disarm",
+                        "value": "Disarming",
+                        "type": "inactive"
+                    },
+                    {   
+                        "key": "exitdelay",
+                        "value": "Exit Delay",
+                        "type": "active"
+                    },
+                    {   
+                        "key": "entrydelay",
+                        "value": "Entry Delay",
+                        "type": "active"
+                    },
+                    {   
+                        "key": "chime",
+                        "value": "Toggling Chime",
+                        "type": "active"
+                    },
+                    {   
+                        "key": "bypassoff",
+                        "value": "Sending Bypass Off",
+                        "type": "active"
+                    },
+                    {   
+                        "key": "keyfire",
+                        "value": "Sending Fire Alert",
+                        "type": "inactive"
+                    },
+                    {   
+                        "key": "keyaux",
+                        "value": "Sending Aux Alert",
+                        "type": "inactive"
+                    },
+                    {   
+                        "key": "keypanic",
+                        "value": "Sending Panic Alert",
+                        "type": "inactive"
+                    }
+                ]
             }
         ],
         "actions": [],
@@ -13,36 +94,166 @@
             "label": "Partition Status",
             "displayType": "state",
             "state": {
-                "label": "{{partitionStatus.value}}"
+                "value": "partitionStatus.value",
+                "label": "{{partitionStatus.value}}",
+                "alternatives": [
+                    {   
+                        "key": "ready",
+                        "value": "Ready",
+                        "type": "active"
+                    },
+                    {   
+                        "key": "forceready",
+                        "value": "Force Ready",
+                        "type": "active"
+                    },
+                    {   
+                        "key": "notready",
+                        "value": "Not Ready",
+                        "type": "inactive"
+                    },
+                    {   
+                        "key": "stay",
+                        "value": "Armed Stay",
+                        "type": "inactive"
+                    },
+                    {   "key": "away",
+                        "value": "Armed Away",
+                        "type": "inactive"
+                    },
+                    {   
+                        "key": "alarmcleared",
+                        "value": "Alarm Cleared",
+                        "type": "inactive"
+                    },
+                    {   
+                        "key": "instant",
+                        "value": "Armed Instant",
+                        "type": "inactive"
+                    },
+                    {   
+                        "key": "night",
+                        "value": "Armed Night",
+                        "type": "inactive"
+                    },
+                    {   
+                        "key": "disarm",
+                        "value": "Disarming",
+                        "type": "inactive"
+                    },
+                    {   
+                        "key": "exitdelay",
+                        "value": "Exit Delay",
+                        "type": "active"
+                    },
+                    {   
+                        "key": "entrydelay",
+                        "value": "Entry Delay",
+                        "type": "active"
+                    },
+                    {   
+                        "key": "chime",
+                        "value": "Toggling Chime",
+                        "type": "active"
+                    },
+                    {   
+                        "key": "bypassoff",
+                        "value": "Sending Bypass Off",
+                        "type": "active"
+                    },
+                    {   
+                        "key": "keyfire",
+                        "value": "Sending Fire Alert",
+                        "type": "inactive"
+                    },
+                    {   
+                        "key": "keyaux",
+                        "value": "Sending Aux Alert",
+                        "type": "inactive"
+                    },
+                    {   
+                        "key": "keypanic",
+                        "value": "Sending Panic Alert",
+                        "type": "inactive"
+                    }
+                ]
             }
         }
     ],
     "automation": {
         "conditions": [
             {
-                "label": "Partition Status:",
+                "label": "Partition Status",
                 "displayType": "list",
                 "list": {
+                    "value": "partitionStatus.value",
                     "alternatives": [
-                        {
-                            "key": "away",
-                            "value": "Arm Away",
-                            "type": "active"
+                        {   
+                            "key": "ready",
+                            "value": "Ready"
                         },
-                        {
+                        {   
+                            "key": "forceready",
+                            "value": "Force Ready"
+                        },
+                        {   
+                            "key": "notready",
+                            "value": "Not Ready"
+                        },
+                        {   
                             "key": "stay",
-                            "value": "Arm Stay",
-                            "type": "active"
+                            "value": "Armed Stay"
                         },
-                        {
-                            "key": "disarmed",
-                            "value": "Disarmed",
-                            "type": "active"
+                        {   "key": "away",
+                            "value": "Armed Away"
+                        },
+                        {   
+                            "key": "alarmcleared",
+                            "value": "Alarm Cleared"
+                        },
+                        {   
+                            "key": "instant",
+                            "value": "Armed Instant"
+                        },
+                        {   
+                            "key": "night",
+                            "value": "Armed Night"
+                        },
+                        {   
+                            "key": "disarm",
+                            "value": "Disarming"
+                        },
+                        {   
+                            "key": "exitdelay",
+                            "value": "Exit Delay"
+                        },
+                        {   
+                            "key": "entrydelay",
+                            "value": "Entry Delay"
+                        },
+                        {   
+                            "key": "chime",
+                            "value": "Toggling Chime"
+                        },
+                        {   
+                            "key": "bypassoff",
+                            "value": "Sending Bypass Off"
+                        },
+                        {   
+                            "key": "keyfire",
+                            "value": "Sending Fire Alert"
+                        },
+                        {   
+                            "key": "keyaux",
+                            "value": "Sending Aux Alert"
+                        },
+                        {   
+                            "key": "keypanic",
+                            "value": "Sending Panic Alert"
                         }
                     ]
                 }
             }
-
         ],
         "actions": []
     },
