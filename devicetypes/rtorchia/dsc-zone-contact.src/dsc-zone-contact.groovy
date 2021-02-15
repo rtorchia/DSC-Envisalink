@@ -12,7 +12,7 @@ metadata {
    author: 'Ralph Torchia',
     namespace: 'rtorchia',
     mnmn: 'SmartThingsCommunity',
-    vid: 'fb65f429-8360-3f4c-bd85-2358220ff2f4'
+    vid: '4cf13940-90d0-34ed-95f9-67f7bc92c03c'
   )
 
   {
