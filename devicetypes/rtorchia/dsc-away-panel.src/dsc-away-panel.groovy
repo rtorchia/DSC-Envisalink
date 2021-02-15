@@ -48,10 +48,10 @@ def partition(String evt, String partition, Map parameters) {
   
   if (onList.contains(evt)) {
     sendEvent (name: "switch", value: "on")
-    sendEvent (name: "partitionStatus", value: "${evt}")
+    //sendEvent (name: "partitionStatus", value: "${evt}")
   } else if (!(chimeList.contains(evt) || troubleMap[evt] || evt.startsWith('led') || evt.startsWith('key'))) {
     sendEvent (name: "switch", value: "off")
-    sendEvent (name: "partitionStatus", value: "disarm")
+    //sendEvent (name: "partitionStatus", value: "disarm")
   }
 
   if (troubleMap[evt]) {
