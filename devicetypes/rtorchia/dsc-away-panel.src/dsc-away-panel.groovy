@@ -3,7 +3,7 @@
  *
  *  Author: Ralph Torchia
  *  Original Code By: Jordan <jordan@xeron.cc>, Rob Fisher <robfish@att.net>, Carlos Santiago <carloss66@gmail.com>, JTT <aesystems@gmail.com>
- *  Date: 2021-02-13
+ *  Date: 2021-02-17
  */
 
 metadata {
@@ -78,7 +78,7 @@ def partition(String evt, String partition, Map parameters) {
   }
 }
 
-def installed() { state.sendurl = true }
+def installed() { state.sendurl = false }
 
 //arm away = switch on
 def on() {
@@ -107,11 +107,11 @@ def away() {
 }
 
 def stay() {
-  if (state.sendurl==true) {
-    state.sendurl = false
+  if (state.sendurl==false) {
+    state.sendurl = true
     log.debug "Triggered stay()"
     parent.sendUrl("stayarm?part=${device.deviceNetworkId[-1]}")
-    state.sendurl = true
+    state.sendurl = false
   }
 }
 
