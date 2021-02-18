@@ -3,7 +3,7 @@
  *
  *  Author: Ralph Torchia
  *  Original Code By: Jordan <jordan@xeron.cc>, Rob Fisher <robfish@att.net>, Carlos Santiago <carloss66@gmail.com>, JTT <aesystems@gmail.com>
- *  Date: 2021-02-17
+ *  Date: 2021-02-18
  */
  
 metadata {
@@ -74,7 +74,7 @@ def partition(String evt, String partition, Map parameters) {
   } else {
     // Send final event
     sendEvent (name: "partitionStatus", value: "${evt}")
-    sendEvent (name: "partitionCommand", value: "Select command", descriptionText: "${evt}")
+    sendEvent (name: "partitionCommand", value: "Select command")
   }
 }
 
@@ -172,8 +172,11 @@ def togglechime() {
 def setPartitionCommand(String evt) {
   log.debug "Processing command: ${evt}"
   
+  def altState = ""
+  altState=getPrettyName().get(evt)
+  
   sendEvent (name: "partitionStatus", value: "${evt}")
-  sendEvent (name: "partitionCommand", value: "${evt}", descriptionText: "Command: ${evt}")
+  sendEvent (name: "partitionCommand", value: "${altState}")
       
   if (evt =='away') { away() }
   else if (evt == 'autobypass') { autobypass() }
@@ -189,4 +192,25 @@ def setPartitionCommand(String evt) {
   else if (evt == 'reset') { reset() }
   else if (evt == 'stay') { stay() }
   else if (evt == 'chime') { togglechime() }
+}
+
+def getPrettyName() {
+  return [
+    ready: "Ready",
+    forceready: "Ready",
+    notready: "Not Ready",
+    stay: "Arming Stay",
+	away: "Arming Away",
+	alarmcleared: "Alarm Cleared",
+    instant: "Armed Instant",
+    night: "Armed Night",
+    disarm: "Disarming",
+    exitdelay: "Exit Delay",
+    entrydelay: "Entry Delay",
+    chime: "Toggling Chime",
+    bypassoff: "Bypass Off",
+    keyfire: "Fire Alert",
+    keyaux: "Aux Alert",
+    keypanic: "Panic Alert"
+  ]
 }

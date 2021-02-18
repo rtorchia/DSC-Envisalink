@@ -3,7 +3,7 @@
  *
  *  Author: Ralph Torchia
  *  Originally By: Jordan <jordan@xeron.cc>, Matt Martz <matt.martz@gmail.com>, Kent Holloway <drizit@gmail.com>
- *  Date: 2021-02-14
+ *  Date: 2021-02-18
  */
 
 metadata {
@@ -12,7 +12,7 @@ metadata {
     author: 'Ralph Torchia',
     namespace: 'rtorchia',
     mnmn: 'SmartThingsCommunity',
-    vid: '89b15f93-031d-3901-8135-429588552899'
+    vid: '81f7d8ca-5516-36f2-83c1-fbc5d0763f7e'
   )
 
   {    
