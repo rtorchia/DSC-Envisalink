@@ -38,7 +38,7 @@ This integration is mostly complete and working, but some items do not work as S
 
 4. After the DSC-Envisalink SmartApp is installed in the IDE, find it in the list and select _Edit Properties_.
 
-5. Click _Enable OAuth_ in Smart App" and save the changes.
+5. Click _Enable OAuth_ in SmartApp and save the changes.
 
 ### SmartApp Setup
 
