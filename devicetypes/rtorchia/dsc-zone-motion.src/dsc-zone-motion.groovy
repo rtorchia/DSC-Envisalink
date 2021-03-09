@@ -3,100 +3,101 @@
  *
  *  Author: Ralph Torchia
  *  Originally By: Jordan <jordan@xeron.cc>, Matt Martz <matt.martz@gmail.com>, Kent Holloway <drizit@gmail.com>
- *  Date: 2021-02-18
+ *  Date: 2021-03-08
  */
 
 metadata {
-  definition (
-    name: 'DSC Zone Motion',
-    author: 'Ralph Torchia',
-    namespace: 'rtorchia',
-    mnmn: 'SmartThingsCommunity',
-    vid: 'f9ebf1ad-8de1-35a4-a4cc-9af067a196f5'
-  )
+    definition (
+        name: 'DSC Zone Motion',
+        author: 'Ralph Torchia',
+        namespace: 'rtorchia',
+        mnmn: 'SmartThingsCommunity',
+        vid: 'f9ebf1ad-8de1-35a4-a4cc-9af067a196f5'
+    )
 
-  {
-    capability 'Motion Sensor'
-    capability 'Sensor'
-    capability 'Alarm'
-    capability 'pizzafiber16443.zoneBypass'
-    capability 'pizzafiber16443.troubleStatus'
-  }
+    {
+        capability 'Motion Sensor'
+        capability 'Sensor'
+        capability 'Alarm'
+        capability 'pizzafiber16443.zoneBypass'
+        capability 'pizzafiber16443.troubleStatus'
+    }
   
-  tiles {}
+    tiles {}
 }
 
 // handle commands
 def setZoneBypass(String evt) {
-  def zone = device.deviceNetworkId.minus('dsczone')
-  parent.sendUrl("bypass?zone=${zone}")
-  sendEvent (name: "zoneBypass", value: "${evt}")
+    def zone = device.deviceNetworkId.minus('dsczone')
+    parent.sendUrl("bypass?zone=${zone}")
+    sendEvent (name: "zoneBypass", value: "${evt}")
 }
 
 def zone(String state) {
-  // state will be a valid state for a zone (open, closed)
-  // zone will be a number for the zone
-  log.debug "Zone: ${state}"
+    // state will be a valid state for a zone (open, closed)
+    // zone will be a number for the zone
+    log.debug "Zone: ${state}"
 
-  def troubleList = ['fault','tamper','restore']
+    def troubleList = ['fault', 'tamper', 'restore']
 
-  def bypassList = ['on','off']
+    def bypassList = ['on', 'off']
 
-  def alarmMap = [
-    'alarm': 'both',
-    'noalarm': 'off'
-  ]
-
-  if (troubleList.contains(state)) {
-    sendEvent (name: "troubleStatus", value: "${state}")
-  } else if (bypassList.contains(state)) {
-    sendEvent (name: "zoneBypass", value: "${state}")
-  } else {
-    // Send actual alarm state, if we have one
-    if (alarmMap.containsKey(state)) {
-      sendEvent (name: "alarm", value: "${alarmMap[state]}")
-    } else {
-      sendEvent (name: "alarm", value: "off")
-    }
-    // Since this is a motion device we need to convert the values to match the device capabilities
-    // Alarming isn't a valid option for this capability, but we map this here anyway, so you can more easily tell which device
-    // is alarming from the "things" page.
-    def motionMap = [
-     'open':'active',
-     'closed':'inactive',
-     'noalarm':'inactive',
-     'alarm':'alarm'
+    def alarmMap = [
+        'alarm': 'both',
+        'noalarm': 'off'
     ]
 
-    sendEvent (name: "motion", value: "${motionMap[state]}")
-  }
+    if (troubleList.contains(state)) {
+        sendEvent (name: "troubleStatus", value: "${state}")
+    } else if (bypassList.contains(state)) {
+        sendEvent (name: "zoneBypass", value: "${state}")
+    } else {
+        // Send actual alarm state, if we have one
+        if (alarmMap.containsKey(state)) {
+            sendEvent (name: "alarm", value: "${alarmMap[state]}")
+        } else {
+            sendEvent (name: "alarm", value: "off")
+        }
+        // Since this is a motion device we need to convert the values to match the device capabilities
+        // Alarming isn't a valid option for this capability, but we map this here anyway, so you can
+        // more easily tell which device is alarming from the "things" page.
+        def motionMap = [
+            'open': 'active',
+            'closed': 'inactive',
+            'noalarm': 'inactive',
+            'alarm': 'alarm'
+        ]
+
+        sendEvent (name: "motion", value: "${motionMap[state]}")
+    }
 }
 
 def updated() {
-  //do nothing for now
+    //do nothing for now
 }
+
 def installed() {
-  initialize()
+    initialize()
 }
 
 //just reset if any button is pushed for now
 def both() {
-  sendEvent (name: "alarm", value: "off")
+    sendEvent (name: "alarm", value: "off")
 }
 def off() {
-  sendEvent (name: "alarm", value: "off")
+    sendEvent (name: "alarm", value: "off")
 }
 def siren() {
-  sendEvent (name: "alarm", value: "off")
+    sendEvent (name: "alarm", value: "off")
 }
 def strobe() {
-  sendEvent (name: "alarm", value: "off")
+    sendEvent (name: "alarm", value: "off")
 }
 
 private initialize() {
-  log.trace "Executing initialize()"
-  //set default values
-  sendEvent (name: "troubleStatus", value: "restore")
-  sendEvent (name: "zoneBypass", value: "off")
-  off()
+    log.trace "Executing initialize()"
+    //set default values
+    sendEvent (name: "troubleStatus", value: "restore")
+    sendEvent (name: "zoneBypass", value: "off")
+    off()
 }
