@@ -8,7 +8,7 @@
 ## Smartthings away/stay mode by jordan@xeron.cc
 ##
 ## This code is under the terms of the GPL v3 license.
-## ver: 2021-01-30
+## ver: 2021-3-14
 
 import asyncore, asynchat
 import configparser
@@ -239,7 +239,7 @@ class HTTPChannel(asynchat.async_chat):
                     self, request[0], request[1], self.header
                 )
                 self.close_when_done()
-            self.data = ""
+            self.data = b""
         else:
             pass # ignore body data, for now
 
