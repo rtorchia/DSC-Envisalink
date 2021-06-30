@@ -8,7 +8,7 @@
 ## Smartthings away/stay mode by jordan@xeron.cc
 ##
 ## This code is under the terms of the GPL v3 license.
-## ver: 2021-3-14
+## ver: 2021-06-17
 
 import asyncore, asynchat
 import configparser
@@ -187,7 +187,7 @@ class DeviceSetup():
         # create zone devices
         myURL = config.CALLBACKURL_BASE + "/" + config.CALLBACKURL_APP_ID + "/installzones" + "?access_token=" + config.CALLBACKURL_ACCESS_TOKEN
         if (config.LOGURLREQUESTS):
-          alarmserver_logger("myURL: %s" % myURL)
+            alarmserver_logger("myURL: %s" % myURL)
         
         try:
             requests.post(myURL, data=zonejson, headers=headers, timeout=TIMETOWAIT)
@@ -199,7 +199,7 @@ class DeviceSetup():
         # create partition devices
         myURL = config.CALLBACKURL_BASE + "/" + config.CALLBACKURL_APP_ID + "/installpartitions" + "?access_token=" + config.CALLBACKURL_ACCESS_TOKEN
         if (config.LOGURLREQUESTS):
-          alarmserver_logger("myURL: %s" % myURL)
+            alarmserver_logger("myURL: %s" % myURL)
         
         try:
             requests.post(myURL, data=partitionjson, headers=headers, timeout=TIMETOWAIT)
